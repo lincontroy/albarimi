@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💛 I'm a mum who found freedom in crypto</title>
+    <meta name="description" content="Not a pro — just someone who started small and didn't stop.">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="💛 I'm a mum who found freedom in crypto.">
+    <meta property="og:description" content="Not a pro — just someone who started small and didn't stop.">
+    <meta property="og:type" content="website">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            min-height: 100vh;
+            color: white;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 60px 0 40px;
+        }
+        
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: block;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .profile-image:hover {
+            transform: scale(1.05);
+        }
+        
+        .hero h1 {
+            font-size: clamp(24px, 4vw, 32px);
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 0.8s ease;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .subtitle {
+            font-size: clamp(16px, 3vw, 20px);
+            margin-bottom: 15px;
+            opacity: 0.95;
+            animation: fadeInUp 0.8s ease 0.2s both;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .testimonial-note {
+            font-size: 14px;
+            font-style: italic;
+            opacity: 0.8;
+            margin-bottom: 40px;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+        
+        .cta-section {
+            margin-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 400px;
+            padding: 18px 30px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #ff416c;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease 0.6s both;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+            background: white;
+        }
+        
+        .cta-button .icon {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+        
+        .secondary-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 400px;
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease 0.8s both;
+        }
+        
+        .secondary-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .secondary-button .icon {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        .divider {
+            height: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 1px;
+            margin: 50px auto;
+            max-width: 100px;
+            animation: fadeInUp 0.8s ease 1s both;
+        }
+        
+        .reviews-section {
+            margin-top: 50px;
+            animation: fadeInUp 0.8s ease 1.2s both;
+        }
+        
+        .reviews-title {
+            font-size: clamp(24px, 5vw, 32px);
+            font-weight: 700;
+            margin-bottom: 40px;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Horizontal Carousel Reviews Gallery */
+        .reviews-gallery {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            gap: 20px;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+        }
+        
+        .reviews-gallery::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .reviews-gallery::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        
+        .reviews-gallery::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+        
+        .reviews-gallery::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .review-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            flex: 0 0 auto;
+            scroll-snap-align: start;
+            width: 280px;
+            height: 600px;
+        }
+        
+        .review-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .review-card:hover::before {
+            left: 100%;
+        }
+        
+        .review-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .review-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .review-card:hover .review-image {
+            transform: scale(1.02);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Carousel Navigation Hints */
+        .carousel-hint {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.8;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .carousel-hint::before {
+            content: "← ";
+        }
+        
+        .carousel-hint::after {
+            content: " →";
+        }
+        
+        /* Floating background elements */
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .floating-element:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .floating-element:nth-child(2) {
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+        
+        .floating-element:nth-child(3) {
+            bottom: 30%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            padding-top: 20px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.95);
+            text-align: center;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            max-width: 95%;
+            max-height: 90vh;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.4s ease;
+            object-fit: contain;
+        }
+        
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .close:hover {
+            color: #ff416c;
+            transform: scale(1.1);
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes modalSlideIn {
+            from { 
+                opacity: 0; 
+                transform: scale(0.8) translateY(50px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1) translateY(0); 
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Responsive Design */
+        
+        /* Mobile Responsive Carousel */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .hero {
+                padding: 40px 0 30px;
+            }
+            
+            .profile-image {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .reviews-gallery {
+                gap: 15px;
+                padding: 15px 0;
+            }
+            
+            .review-card {
+                padding: 12px;
+                width: 250px;
+                height: 500px;
+            }
+            
+            .cta-section {
+                gap: 12px;
+            }
+            
+            .cta-button,
+            .secondary-button {
+                max-width: 100%;
+            }
+            
+            .modal {
+                padding-top: 10px;
+            }
+            
+            .close {
+                top: 10px;
+                right: 20px;
+                font-size: 30px;
+            }
+            
+            .modal-content {
+                max-width: 98%;
+                max-height: 85vh;
+            }
+            
+            .carousel-hint {
+                font-size: 12px;
+            }
+        }
+        
+        /* Extra Small Mobile */
+        @media (max-width: 375px) {
+            .reviews-title {
+                margin-bottom: 30px;
+            }
+            
+            .review-card {
+                padding: 10px;
+                width: 220px;
+                height: 450px;
+            }
+            
+            .reviews-gallery {
+                gap: 12px;
+            }
+        }
+        
+        /* Large Desktop - Bigger carousel cards */
+        @media (min-width: 1200px) {
+            .review-card {
+                width: 320px;
+                height: 650px;
+                padding: 18px;
+            }
+            
+            .reviews-gallery {
+                gap: 25px;
+            }
+        }
+        
+        /* Success Animation */
+        .success-animation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            animation: fadeInUp 0.3s ease;
+        }
+        
+        /* High DPI Displays */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .review-image {
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: crisp-edges;
+            }
+        }
+        
+        /* Landscape Orientation on Mobile */
+        @media (max-width: 991px) and (orientation: landscape) {
+            .hero {
+                padding: 30px 0 25px;
+            }
+            
+            .reviews-section {
+                margin-top: 30px;
+            }
+            
+            .review-image {
+                min-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+    
+    <div class="container">
+        <div class="hero">
+            <img src="avator.jpeg" 
+                 alt="Profile" class="profile-image">
+            
+            <h1>💛 I'm a God-fearing man and a dad of two who found freedom through crypto — and I'll show you how too.</h1>
+            
+            <p class="subtitle">I had debt, no savings, and no idea about crypto. Now I earn daily — and help others do the same, step by step.</p>
+            
+            <p class="testimonial-note">💬 Real results shown daily in the channel</p>
+        </div>
+        
+        <div class="cta-section">
+            <a href="#" class="cta-button pulse" id="mainCTA">
+                <span class="icon">📱</span>
+                Join the free Telegram channel now!
+            </a>
+            
+            <a href="https://telegram.org/apps" class="secondary-button" target="_blank">
+                <span class="icon">⬇️</span>
+                No Telegram? Download
+            </a>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="reviews-section">
+            <h2 class="reviews-title">Reviews</h2>
+            <div class="reviews-gallery">
+                <div class="review-card" onclick="openModal('1.jpeg')">
+                    <img src="1.jpeg" alt="Customer Review 1" class="review-image">
+                </div>
+                
+                <div class="review-card" onclick="openModal('2.jpeg')">
+                    <img src="2.jpeg" alt="Customer Review 2" class="review-image">
+                </div>
+                
+                <div class="review-card" onclick="openModal('3.jpeg')">
+                    <img src="3.jpeg" alt="Customer Review 3" class="review-image">
+                </div>
+                
+                <div class="review-card" onclick="openModal('4.jpeg')">
+                    <img src="4.jpeg" alt="Customer Review 4" class="review-image">
+                </div>
+                
+                <div class="review-card" onclick="openModal('5.jpeg')">
+                    <img src="5.jpeg" alt="Customer Review 5" class="review-image">
+                </div>
+                
+                <div class="review-card" onclick="openModal('6.jpeg')">
+                    <img src="6.jpeg" alt="Customer Review 6" class="review-image">
+                </div>
+            </div>
+            
+            <div class="carousel-hint">
+                Scroll to see more reviews
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for Image Preview -->
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage" alt="Review Preview">
+    </div>
+    
+    <!-- Success Animation -->
+    <div class="success-animation" id="successAnimation">
+        <h3>🎉 Redirecting to Telegram...</h3>
+        <p>Get ready to start your crypto journey!</p>
+    </div>
+    
+    <script>
+        // Enhanced interaction and analytics
+        document.getElementById('mainCTA').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Show success animation
+            const successAnimation = document.getElementById('successAnimation');
+            successAnimation.style.display = 'block';
+            
+            // Simulate redirect to Telegram
+            setTimeout(() => {
+                // Check if on mobile
+                if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    // Try to open Telegram app
+                    window.location.href = 'https://t.me/crypto_trading_arbitrage11';
+                    
+                    // Fallback to web version
+                    setTimeout(() => {
+                        window.open('https://t.me/crypto_trading_arbitrage11', '_blank');
+                    }, 1000);
+                } else {
+                    // Desktop - open web version
+                    window.open('https://t.me/crypto_trading_arbitrage11', '_blank');
+                }
+                
+                successAnimation.style.display = 'none';
+            }, 2000);
+        });
+        
+        // Enhanced Modal functionality
+        function openModal(imageSrc) {
+            const modal = document.getElementById("imageModal");
+            const modalImage = document.getElementById("modalImage");
+            modal.style.display = "block";
+            modalImage.src = imageSrc;
+            
+            // Prevent body scroll when modal is open
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("imageModal");
+            modal.style.display = "none";
+            
+            // Restore body scroll
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Close modal with escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+        
+        // Auto-redirect functionality
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const autoRedirect = urlParams.get("a");
+        
+        if (autoRedirect) {
+            setTimeout(function() {
+                document.getElementById('mainCTA').click();
+            }, 100);
+        }
+        
+        // Enhanced interactive effects
+        document.addEventListener('mousemove', function(e) {
+            const floatingElements = document.querySelectorAll('.floating-element');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            floatingElements.forEach((element, index) => {
+                const speed = (index + 1) * 0.02;
+                const xOffset = (x - 0.5) * speed * 100;
+                const yOffset = (y - 0.5) * speed * 100;
+                
+                element.style.transform = `translate(${xOffset}px, ${yOffset}px)`;
+            });
+        });
+        
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, observerOptions);
+        
+        // Observe animated elements
+        document.querySelectorAll('[style*="animation"]').forEach(el => {
+            el.style.animationPlayState = 'paused';
+            observer.observe(el);
+        });
+        
+        // Start hero animations immediately
+        setTimeout(() => {
+            document.querySelectorAll('.hero [style*="animation"]').forEach(el => {
+                el.style.animationPlayState = 'running';
+            });
+        }, 100);
+        
+        // Add stagger animation to review cards
+        document.addEventListener('DOMContentLoaded', function() {
+            const reviewCards = document.querySelectorAll('.review-card');
+            reviewCards.forEach((card, index) => {
+                card.style.animationDelay = `${1.4 + (index * 0.1)}s`;
+                card.style.animation = 'fadeInUp 0.8s ease both';
+            });
+        });
+    </script>
+</body>
+</html>
