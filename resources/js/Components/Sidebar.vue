@@ -15,7 +15,7 @@
         </div>
         <span
           class="font-bold text-lg bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"
-          >Albarimi Motors</span
+          >Barimax</span
         >
       </div>
       <button
