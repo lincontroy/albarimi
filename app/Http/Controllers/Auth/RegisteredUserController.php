@@ -49,7 +49,7 @@ class RegisteredUserController extends Controller
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'phone' => 'nullable|string|max:20',
-            'referral_code' => 'nullable|string|exists:users,referral_code',
+            'referral_code' => 'nullable|string',
         ]);
 
         // Start creating user
