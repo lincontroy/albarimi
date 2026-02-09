@@ -46,6 +46,10 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $referralCode = $request->referral_code;
+
+        // dd($referralCode);
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
@@ -61,16 +65,20 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
             'phone' => $request->phone,
             'referral_code' => $this->generateUniqueReferralCode(),
+          
             'deposit_balance' => 0,
             'is_agent' => false,
             'last_active_at' => now(),
         ];
+        // dd($request->all());
+       
 
         // Handle referral if provided
-        if ($request->referral_code) {
-            $referrer = User::where('referral_code', $request->referral_code)->first();
+      
+        if ($referralCode) {
+            $referrer = User::where('id', $referralCode)->first();
             if ($referrer) {
-                $userData['referred_by'] = $referrer->id;
+                $userData['referred_by'] = $referralCode;
             }
         }
 
@@ -113,13 +121,12 @@ class RegisteredUserController extends Controller
      */
     private function generateUniqueReferralCode(): string
     {
-        $code = '';
+       
         
-        do {
+      
             // Generate 8-character alphanumeric code
-            $code = strtoupper(Str::random(8));
-        } while (User::where('referral_code', $code)->exists());
-        
+        $code = strtoupper(Str::random(8));
+    
         return $code;
     }
 }
