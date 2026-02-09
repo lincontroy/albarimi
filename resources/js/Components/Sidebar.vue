@@ -145,6 +145,7 @@ import {
   CreditCard,
   Star,
   Package,
+  Briefcase,
   TrendingUp,
   Wallet,
   User,
@@ -226,7 +227,7 @@ const menuItems = [
     icon: Zap, 
     label: 'Monetized Ads', 
     hasDropdown: false, 
-    link: '/ads' 
+    link: '/barimax-ads' 
   },
   { 
     icon: Gift, 
@@ -258,11 +259,23 @@ const menuItems = [
     link: '/visa-codes' 
   },
   { 
+    icon: Package, 
+    label: 'Earning Packages', 
+    hasDropdown: false, 
+    link: '/packages' 
+},
+  { 
     icon: Star, 
     label: 'Starlink', 
     hasDropdown: false, 
     link: '/starlink' 
   },
+  { 
+    icon: Briefcase, 
+    label: 'Online Work', 
+    hasDropdown: false, 
+    link: '/online-work' 
+},
   { 
     icon: Package, 
     label: 'Jobs', 

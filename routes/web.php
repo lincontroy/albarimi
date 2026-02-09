@@ -8,8 +8,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\TeamController;
+use App\Http\Controllers\BarimaxAdController;
+use App\Http\Controllers\PackageController;
 use App\Http\Controllers\SubmitViewsController;
 use App\Http\Controllers\AgentPackageController;
+use App\Http\Controllers\OnlineWorkController;
 use App\Http\Controllers\WhatsAppWithdrawalController;
 use App\Http\Controllers\BonusWithdrawalController;
 use App\Http\Controllers\CertificationController;
@@ -62,6 +65,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // });
     });
 
+    Route::prefix('barimax-ads')->name('barimax-ads.')->group(function () {
+        Route::get('/', [BarimaxAdController::class, 'index'])->name('index');
+        Route::get('/{id}', [BarimaxAdController::class, 'show'])->name('show');
+        Route::post('/{id}/claim', [BarimaxAdController::class, 'claimDiscount'])->name('claim');
+        
+        // Admin routes
+        Route::middleware(['admin'])->group(function () {
+            Route::get('/admin/all', [BarimaxAdController::class, 'getAllAds'])->name('admin.all');
+            Route::post('/generate', [BarimaxAdController::class, 'generateNewAd'])->name('generate');
+        });
+    });
+
     Route::prefix('agent-package')->name('agent-package.')->group(function () {
         Route::get('/', [AgentPackageController::class, 'index'])->name('index');
         Route::post('/purchase', [AgentPackageController::class, 'purchase'])->name('purchase');
@@ -71,6 +86,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::prefix('team')->name('team.')->group(function () {
     Route::get('/', [TeamController::class, 'index'])->name('index');
     Route::post('/generate-code', [TeamController::class, 'generateReferralCode'])->name('generate-code');
+});
+
+// Add to the middleware(['auth', 'verified']) group
+Route::prefix('packages')->name('packages.')->group(function () {
+    Route::get('/', [PackageController::class, 'index'])->name('index');
+    Route::post('/purchase', [PackageController::class, 'purchase'])->name('purchase');
+    Route::get('/history', [PackageController::class, 'history'])->name('history');
+    Route::get('/{id}', [PackageController::class, 'show'])->name('show');
+    Route::post('/{id}/renew', [PackageController::class, 'renew'])->name('renew');
+    Route::post('/{id}/upgrade', [PackageController::class, 'upgrade'])->name('upgrade');
 });
    // routes/web.php
 Route::prefix('reward-center')->name('reward-center.')->group(function () {
@@ -177,6 +202,14 @@ Route::prefix('whatsapp-linkage')->name('whatsapp-linkage.')->group(function () 
     Route::post('/resend-verification', [WhatsappLinkageController::class, 'resendVerification'])->name('resend-verification');
 });
     
+// Add to the middleware(['auth', 'verified']) group
+Route::prefix('online-work')->name('online-work.')->group(function () {
+    Route::get('/', [OnlineWorkController::class, 'index'])->name('index');
+    Route::post('/purchase', [OnlineWorkController::class, 'purchase'])->name('purchase');
+    Route::get('/history', [OnlineWorkController::class, 'history'])->name('history');
+    Route::get('/{id}', [OnlineWorkController::class, 'show'])->name('show');
+    Route::post('/{id}/renew', [OnlineWorkController::class, 'renew'])->name('renew');
+});
     // Reviews
     Route::prefix('reviews')->name('reviews.')->group(function () {
         Route::get('/', [ReviewController::class, 'index'])->name('index');

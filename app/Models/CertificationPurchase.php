@@ -72,7 +72,7 @@ class CertificationPurchase extends Model
         return match($type) {
             'certification' => [
                 'name' => 'Certification Package',
-                'amount' => 8500,
+                'amount' => 7000,
                 'duration_days' => 365, // 1 year
                 'features' => [
                     'Full certification access',

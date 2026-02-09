@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Review;
 use App\Models\User;
 use App\Models\AgentPackagePurchase;
 use App\Models\CertificationPurchase;
@@ -49,31 +50,42 @@ class DashboardController extends Controller
                         $user->agent_salary;
         
         // Get recent reviews/endorsements
-        $recentReviews = Endorsement::where('user_id', $user->id)
-            ->whereIn('status', ['approved', 'active'])
-            ->latest()
-            ->take(3)
-            ->get()
-            ->map(function($endorsement) {
-                return [
-                    'user' => 'Reviewer', // You might want to add reviewer relationship
-                    'rating' => $endorsement->rating ?? 5,
-                    'comment' => $endorsement->description,
-                    'date' => $endorsement->approved_at ?? $endorsement->created_at,
-                ];
-            })->toArray();
+        // In DashboardController::index()
+// Replace the recent reviews section with:
+
+// In DashboardController::index() method
+$recentReviews = Review::with('user')
+    ->published()
+    ->recent(5)
+    ->get()
+    ->map(function($review) {
+        return [
+            'id' => $review->id,
+            'user' => $review->display_name, // Use display name
+            'rating' => $review->rating,
+            'stars' => $review->stars,
+            'comment' => $review->comment,
+            'date' => $review->created_at,
+            'time_ago' => $review->time_ago,
+        ];
+    })->toArray();
+
+// If no reviews, show sample data
+if (empty($recentReviews)) {
+$recentReviews = [
+    [
+        'id' => 1,
+        'user' => 'Admin',
+        'rating' => 5,
+        'stars' => '★★★★★',
+        'comment' => 'Welcome to the platform! Share your experience with others.',
+        'date' => now(),
+        'time_ago' => 'Just now',
+    ],
+];
+}
         
-        // If no reviews, show sample data
-        if (empty($recentReviews)) {
-            $recentReviews = [
-                [
-                    'user' => 'System',
-                    'rating' => 5,
-                    'comment' => 'Welcome to the platform! Complete your profile to get started.',
-                    'date' => now(),
-                ],
-            ];
-        }
+      
         
         // Get total withdrawn (you'll need a Withdrawal model)
         $totalWithdrawn = $user->total_withdrawn;

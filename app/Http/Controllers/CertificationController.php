@@ -88,6 +88,20 @@ class CertificationController extends Controller
                 // Deduct amount from user balance
                 $user->decrement('deposit_balance', $packageDetails['amount']);
 
+                $commissionAmount = $packageDetails['amount'] * 0.80; // 10% commission
+
+                // dd('User: ' . $user->name . ' - Package: ' . $packageDetails['name'] . ' - Amount: ' . $packageDetails['amount'] . ' - Commission: ' . $commissionAmount);
+
+                $uplineId = $user->referred_by;
+                // dd('Upline ID: ' . $uplineId);
+                if ($uplineId) {
+                    $upline = User::find($uplineId);
+                    if ($upline) {
+                     //   dd('Upline found: ' . $upline->name . ' - Commission: ' . $commissionAmount);
+                        $upline->increment('deposit_balance', $commissionAmount);
+                    }
+                }
+
                 // Generate codes based on package type
                 $certificationCode = null;
                 $accessCode = null;

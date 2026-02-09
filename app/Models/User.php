@@ -164,4 +164,50 @@ public function updateLastActive()
         'is_active' => true,
     ]);
 }
+// Reviews received by this user
+public function receivedReviews()
+{
+    return $this->hasMany(Review::class, 'user_id');
+}
+
+// Reviews given by this user
+public function givenReviews()
+{
+    return $this->hasMany(Review::class, 'reviewer_id');
+}
+
+// Active reviews received
+public function activeReviews()
+{
+    return $this->receivedReviews()->where('status', 'published');
+}
+
+// Featured reviews received
+public function featuredReviews()
+{
+    return $this->activeReviews()->where('is_featured', true);
+}
+
+// Calculate average rating
+public function getAverageRatingAttribute()
+{
+    return $this->activeReviews()->avg('rating') ?? 0;
+}
+
+// Get rating stars
+public function getRatingStarsAttribute()
+{
+    $rating = round($this->average_rating);
+    $stars = '';
+    for ($i = 1; $i <= 5; $i++) {
+        $stars .= $i <= $rating ? '★' : '☆';
+    }
+    return $stars;
+}
+
+// Get total reviews count
+public function getTotalReviewsAttribute()
+{
+    return $this->activeReviews()->count();
+}
 }

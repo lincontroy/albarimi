@@ -69,41 +69,49 @@
                     </div>
                 </div>
 
-                <!-- Customer Reviews -->
-                <div class="lg:col-span-2 bg-slate-800/40 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-3 shadow-2xl shadow-purple-500/20">
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-lg font-bold text-purple-300">Recent Reviews</h3>
-                        <span class="text-xs text-purple-400 bg-purple-500/20 px-2 py-1 rounded">{{ reviews.length }} Reviews</span>
-                    </div>
-                    
-                    <div class="relative h-28 overflow-hidden">
-                        <transition name="fade" mode="out-in">
-                            <div 
-                                :key="currentReview"
-                                class="w-full bg-slate-700/50 backdrop-blur-sm p-2.5 rounded-xl border border-purple-500/20"
-                            >
-                                <div class="flex items-center space-x-2 mb-1.5">
-                                    <span class="font-bold text-purple-300">{{ reviews[currentReview].user }}</span>
-                                    <div class="flex text-yellow-400">
-                                        <span v-for="n in 5" :key="n">{{ n <= reviews[currentReview].rating ? '★' : '☆' }}</span>
-                                    </div>
-                                </div>
-                                <p class="text-gray-300 text-sm leading-relaxed line-clamp-2">{{ reviews[currentReview].comment }}</p>
-                                <p class="text-xs text-purple-400 mt-1.5 text-right">{{ formatReviewDate(reviews[currentReview].date) }}</p>
-                            </div>
-                        </transition>
-                    </div>
-                    
-                    <div class="flex justify-center space-x-2 mt-2">
-                        <button
-                            v-for="(review, index) in reviews"
-                            :key="index"
-                            @click="goToReview(index)"
-                            class="w-2 h-2 rounded-full transition-all duration-300"
-                            :class="currentReview === index ? 'bg-purple-500 w-4' : 'bg-purple-500/30'"
-                        ></button>
+              <!-- In your Dashboard.vue component -->
+<!-- Replace the reviews section with: -->
+
+<!-- Customer Reviews -->
+<div class="lg:col-span-2 bg-slate-800/40 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-3 shadow-2xl shadow-purple-500/20">
+    <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-bold text-purple-300">Recent Reviews</h3>
+        <Link 
+            href="/reviews"
+            class="text-xs text-purple-400 bg-purple-500/20 hover:bg-purple-500/30 px-2 py-1 rounded transition-colors"
+        >
+            View All
+        </Link>
+    </div>
+    
+    <div class="relative h-28 overflow-hidden">
+        <transition name="fade" mode="out-in">
+            <div 
+                :key="currentReview"
+                class="w-full bg-slate-700/50 backdrop-blur-sm p-2.5 rounded-xl border border-purple-500/20"
+            >
+                <div class="flex items-center space-x-2 mb-1.5">
+                    <span class="font-bold text-purple-300">{{ reviews[currentReview].user }}</span>
+                    <div class="flex text-yellow-400">
+                        <span v-for="n in 5" :key="n">{{ n <= reviews[currentReview].rating ? '★' : '☆' }}</span>
                     </div>
                 </div>
+                <p class="text-gray-300 text-sm leading-relaxed line-clamp-2">{{ reviews[currentReview].comment }}</p>
+                <p class="text-xs text-purple-400 mt-1.5 text-right">{{ formatReviewDate(reviews[currentReview].date) }}</p>
+            </div>
+        </transition>
+    </div>
+    
+    <div class="flex justify-center space-x-2 mt-2">
+        <button
+            v-for="(review, index) in reviews"
+            :key="index"
+            @click="goToReview(index)"
+            class="w-2 h-2 rounded-full transition-all duration-300"
+            :class="currentReview === index ? 'bg-purple-500 w-4' : 'bg-purple-500/30'"
+        ></button>
+    </div>
+</div>
 
                 <!-- Balance Cards -->
                 <div class="bg-gradient-to-br from-cyan-600/40 to-blue-600/40 backdrop-blur-xl border border-cyan-500/30 text-white rounded-2xl p-3 shadow-2xl shadow-cyan-500/20">
