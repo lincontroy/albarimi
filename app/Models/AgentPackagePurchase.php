@@ -26,7 +26,7 @@ class AgentPackagePurchase extends Model
     ];
 
     const PACKAGE_PRICE = 6500;
-    const PACKAGE_NAME = 'Albarimi Motors Agent Package';
+    const PACKAGE_NAME = 'Barimax Agent Package';
 
     /**
      * Get the user that owns the purchase

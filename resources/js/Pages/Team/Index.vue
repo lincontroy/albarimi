@@ -93,7 +93,7 @@
                                 <p class="text-indigo-300 text-sm mb-1">Your Referral Code:</p>
                                 <div class="flex items-center space-x-2">
                                     <div class="bg-gradient-to-r from-indigo-700/40 to-purple-700/40 border border-indigo-500/30 rounded-xl p-3">
-                                        <p class="text-white font-bold text-xl">{{ stats.referral_code || 'Not Generated' }}</p>
+                                        <p class="text-white font-bold text-xl">{{ stats.id || 'Not Generated' }}</p>
                                     </div>
                                     <button
                                         v-if="!stats.referral_code"

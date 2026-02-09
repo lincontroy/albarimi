@@ -13,7 +13,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Agent Package Form -->
                 <div class="lg:col-span-2 bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-6 shadow-2xl shadow-purple-500/20">
-                    <h2 class="text-2xl font-bold text-white mb-2">Become an Albarimi Motors Agent</h2>
+                    <h2 class="text-2xl font-bold text-white mb-2">Become a Barimax Agent</h2>
                     <p class="text-purple-300 mb-6">Upgrade to our premium agent package and unlock exclusive benefits</p>
 
                     <!-- Agent Badge (if user is agent) -->
@@ -25,7 +25,7 @@
                                         <Crown :size="32" class="text-white" />
                                     </div>
                                     <div>
-                                        <h3 class="text-xl font-bold text-white">Albarimi Motors Agent</h3>
+                                        <h3 class="text-xl font-bold text-white">Barimax Agent</h3>
                                         <p class="text-emerald-200">Member since {{ formatDate(package.agent_since) }}</p>
                                         <div class="flex items-center space-x-2 mt-2">
                                             <span class="inline-flex items-center px-3 py-1 bg-emerald-500/30 rounded-full text-sm text-emerald-300 border border-emerald-500/50">

@@ -91,13 +91,13 @@ class User extends Authenticatable
     // Referrer relationship (who referred this user)
     public function referrer()
     {
-        return $this->belongsTo(User::class, 'referred_by');
+        return $this->belongsTo(User::class, 'id');
     }
 
     // Referrals relationship (users who were referred by this user)
     public function referrals()
     {
-        return $this->hasMany(User::class, 'referred_by');
+        return $this->hasMany(User::class, 'id');
     }
 
     // Active referrals (users who have been active recently)
@@ -111,7 +111,7 @@ class User extends Authenticatable
     // Generate referral link
     public function getReferralLinkAttribute()
     {
-        return url('/register?ref=' . $this->referral_code);
+        return url('/register?ref=' . $this->id);
     }
 
     // Check if user is active (logged in within last 7 days)

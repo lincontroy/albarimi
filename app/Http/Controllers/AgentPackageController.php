@@ -19,7 +19,7 @@ class AgentPackageController extends Controller
         $user = Auth::user();
         
         $packageInfo = [
-            'name' => 'Albarimi Motors Agent Package',
+            'name' => 'Barimax Agent Package',
             'price' => AgentPackagePurchase::PACKAGE_PRICE,
             'benefits' => AgentPackagePurchase::getBenefits(),
             'is_agent' => $user->is_agent,
@@ -115,7 +115,7 @@ class AgentPackageController extends Controller
             });
 
             return response()->json([
-                'message' => 'Agent package purchased successfully! Welcome to the Albarimi Motors Agent team!',
+                'message' => 'Agent package purchased successfully! Welcome to the Barimax Agent team!',
                 'agent' => [
                     'is_agent' => true,
                     'agent_since' => now()->toISOString(),
