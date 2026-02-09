@@ -61,6 +61,7 @@ class SubmitViewsController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::user();
         $request->validate([
             'whatsapp_number' => 'required|string|regex:/^254[0-9]{9}$/',
             'views_count' => 'required|integer|min:1|max:10000',
@@ -95,7 +96,7 @@ class SubmitViewsController extends Controller
                 'status' => 'approved',
                 'submitted_at' => now(),
             ]);
-
+            $user->increment('whatsapp_balance', $earnedAmount);
             return response()->json([
                 'message' => 'Congratulations,WhatsApp views submitted successfully! You have earned KES ' . number_format($earnedAmount, 2),
                 'submission' => [

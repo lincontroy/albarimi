@@ -348,15 +348,22 @@ const submitViews = async () => {
         const formData = new FormData();
         formData.append('whatsapp_number', form.value.whatsapp_number);
         formData.append('views_count', form.value.views_count);
-        
         formData.append('screenshot', form.value.screenshot);
+
+        // Get CSRF token from meta tag (if using Blade)
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        
+        // OR get it from the cookies (alternative method)
+        // const csrfToken = getCookie('XSRF-TOKEN');
 
         const response = await fetch('/cash-flow/submit-views', {
             method: 'POST',
             headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+                // Don't include Content-Type for FormData - browser sets it automatically with boundary
             },
+            credentials: 'include', // Important for cookies/Session
             body: formData
         });
 
@@ -365,24 +372,41 @@ const submitViews = async () => {
         console.log('Submission response:', result);
 
         if (response.ok) {
-            // Refresh the page to get updated data
-            router.reload({ only: ['submissions', 'stats'] });
+            // Reset form
             resetForm();
+            
+            // Show success message
             toastr.success(result.message);
-           
+            
+            // Refresh data
+            setTimeout(() => {
+                router.reload({ only: ['submissions', 'stats'] });
+            }, 1500);
+            
         } else {
-            // throw new Error(result.message || 'Failed to submit views');
-            toastr.error(result.message || 'Failed to submit WhatsApp views. Please try again.');
+            // Handle validation errors
+            if (result.errors) {
+                const errorMessages = Object.values(result.errors).flat().join('\n');
+                toastr.error(errorMessages);
+            } else {
+                toastr.error(result.message || 'Failed to submit WhatsApp views. Please try again.');
+            }
         }
         
     } catch (error) {
         console.error('Error submitting views:', error);
-        toastr.error(error.message || 'Error submitting WhatsApp views. Please try again.');
-        // alert(error.message || 'Error submitting WhatsApp views. Please try again.');
+        toastr.error('Network error. Please check your connection and try again.');
     } finally {
         processing.value = false;
     }
 };
+
+// Helper function to get cookie (if needed)
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
 
 const resetForm = () => {
     form.value = {
