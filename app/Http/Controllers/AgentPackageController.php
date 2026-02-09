@@ -91,6 +91,18 @@ class AgentPackageController extends Controller
                 // Deduct from deposit balance
                 $user->decrement('deposit_balance', AgentPackagePurchase::PACKAGE_PRICE);
 
+                $uplineId = $user->referred_by;
+                // dd('Upline ID: ' . $uplineId);
+                if ($uplineId) {
+                    $upline = User::find($uplineId);
+                    if ($upline) {
+                     //   dd('Upline found: ' . $upline->name . ' - Commission: ' . $commissionAmount);
+                        $upline->increment('deposit_balance', $commissionAmount);
+                    }
+                }
+
+            
+
                 // Make user an agent
                 // $user->becomeAgent();
 

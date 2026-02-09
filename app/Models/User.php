@@ -43,6 +43,14 @@ class User extends Authenticatable
         ];
     }
 
+ 
+
+    /**
+     * Get the user's referrer
+     */
+  
+
+
     public function agentPackage()
     {
         return $this->hasOne(AgentPackagePurchase::class)->latest();

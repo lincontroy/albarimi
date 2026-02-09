@@ -13,6 +13,8 @@ use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Str;
+use App\Mail\WelcomeEmail; // Add this
+use Illuminate\Support\Facades\Mail; // Add this
 
 class RegisteredUserController extends Controller
 {
@@ -25,7 +27,7 @@ class RegisteredUserController extends Controller
         $referrer = null;
         
         if ($referralCode) {
-            $referrer = User::where('referral_code', $referralCode)->first();
+            $referrer = User::where('id', $referralCode)->first();
         }
 
         return Inertia::render('Auth/Register', [
@@ -74,6 +76,13 @@ class RegisteredUserController extends Controller
 
         $user = User::create($userData);
 
+        // Send welcome email
+        try {
+            Mail::to($user->email)->send(new WelcomeEmail($user));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send welcome email: ' . $e->getMessage());
+        }
+
         // Update referrer's stats if referral was used
         if ($user->referred_by) {
             $referrer = User::find($user->referred_by);
@@ -94,7 +103,7 @@ class RegisteredUserController extends Controller
 
         return redirect(route('dashboard', absolute: false))->with([
             'flash' => [
-                'success' => 'Registration successful! Welcome to the platform.'
+                'success' => 'Registration successful! Welcome to Barimax Top. Check your email for welcome details.'
             ]
         ]);
     }

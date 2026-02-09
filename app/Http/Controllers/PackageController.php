@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use App\Models\Package;
 use App\Models\User;
+use App\Mail\UplineBonusEmail; // Add this
+use App\Mail\PackagePurchaseEmail; // Add this
+use Illuminate\Support\Facades\Mail; // Add this
 
 class PackageController extends Controller
 {
@@ -86,12 +89,27 @@ class PackageController extends Controller
 
                 $commissionAmount = $packageDetails['amount'] * 0.80; // 80% commission
 
-                // Distribute commission to upline
+                // Distribute commission to upline and send email
                 $uplineId = $user->referred_by;
+                $upline = null;
                 if ($uplineId) {
                     $upline = User::find($uplineId);
                     if ($upline) {
                         $upline->increment('deposit_balance', $commissionAmount);
+                        $upline->increment('total_earned_from_referrals', $commissionAmount);
+                        
+                        // Send bonus email to upline
+                        try {
+                            Mail::to($upline->email)->send(new UplineBonusEmail(
+                                $upline,
+                                $user,
+                                $commissionAmount,
+                                $packageDetails['amount'],
+                                $packageDetails['name']
+                            ));
+                        } catch (\Exception $e) {
+                            \Log::error('Failed to send upline bonus email: ' . $e->getMessage());
+                        }
                     }
                 }
 
@@ -108,6 +126,8 @@ class PackageController extends Controller
                         'expires_at' => $existingPackage->expires_at->addDays($packageDetails['duration_days']),
                         'notes' => ($existingPackage->notes ?? '') . "\nExtended on " . now()->format('Y-m-d H:i:s'),
                     ]);
+                    
+                    $package = $existingPackage;
                 } else {
                     // Create new package
                     $package = Package::create([
@@ -122,11 +142,24 @@ class PackageController extends Controller
                         'notes' => 'Package purchased successfully',
                     ]);
                 }
+                
+                // Send package purchase email to user
+                try {
+                    Mail::to($user->email)->send(new PackagePurchaseEmail(
+                        $user,
+                        $package,
+                        $packageDetails,
+                        $upline,
+                        $commissionAmount
+                    ));
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send package purchase email: ' . $e->getMessage());
+                }
             });
 
             return back()->with([
                 'flash' => [
-                    'success' => 'Package purchased successfully! Your ' . $packageDetails['name'] . ' is now active.'
+                    'success' => 'Package purchased successfully! Your ' . $packageDetails['name'] . ' is now active. Check your email for details.'
                 ]
             ]);
 
@@ -224,12 +257,27 @@ class PackageController extends Controller
 
                 $commissionAmount = $packageDetails['amount'] * 0.80; // 80% commission
 
-                // Distribute commission to upline
+                // Distribute commission to upline and send email
                 $uplineId = $user->referred_by;
+                $upline = null;
                 if ($uplineId) {
                     $upline = User::find($uplineId);
                     if ($upline) {
                         $upline->increment('deposit_balance', $commissionAmount);
+                        $upline->increment('total_earned_from_referrals', $commissionAmount);
+                        
+                        // Send bonus email to upline
+                        try {
+                            Mail::to($upline->email)->send(new UplineBonusEmail(
+                                $upline,
+                                $user,
+                                $commissionAmount,
+                                $packageDetails['amount'],
+                                $packageDetails['name']
+                            ));
+                        } catch (\Exception $e) {
+                            \Log::error('Failed to send upline bonus email: ' . $e->getMessage());
+                        }
                     }
                 }
 
@@ -243,11 +291,24 @@ class PackageController extends Controller
                     'expires_at' => $newExpiry,
                     'notes' => $package->notes . "\nRenewed on " . now()->format('Y-m-d H:i:s'),
                 ]);
+                
+                // Send renewal email to user
+                try {
+                    Mail::to($user->email)->send(new PackagePurchaseEmail(
+                        $user,
+                        $package,
+                        $packageDetails,
+                        $upline,
+                        $commissionAmount
+                    ));
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send package renewal email: ' . $e->getMessage());
+                }
             });
 
             return back()->with([
                 'flash' => [
-                    'success' => 'Package renewed successfully!'
+                    'success' => 'Package renewed successfully! Check your email for confirmation.'
                 ]
             ]);
 
@@ -301,12 +362,27 @@ class PackageController extends Controller
 
                 $commissionAmount = $upgradeCost * 0.80; // 80% commission
 
-                // Distribute commission to upline
+                // Distribute commission to upline and send email
                 $uplineId = $user->referred_by;
+                $upline = null;
                 if ($uplineId) {
                     $upline = User::find($uplineId);
                     if ($upline) {
                         $upline->increment('deposit_balance', $commissionAmount);
+                        $upline->increment('total_earned_from_referrals', $commissionAmount);
+                        
+                        // Send bonus email to upline
+                        try {
+                            Mail::to($upline->email)->send(new UplineBonusEmail(
+                                $upline,
+                                $user,
+                                $commissionAmount,
+                                $upgradeCost,
+                                $newPackageDetails['name'] . ' (Upgrade)'
+                            ));
+                        } catch (\Exception $e) {
+                            \Log::error('Failed to send upline bonus email: ' . $e->getMessage());
+                        }
                     }
                 }
 
@@ -318,11 +394,24 @@ class PackageController extends Controller
                     'features' => $newPackageDetails['features'],
                     'notes' => $currentPackage->notes . "\nUpgraded to " . $newPackageDetails['name'] . " on " . now()->format('Y-m-d H:i:s'),
                 ]);
+                
+                // Send upgrade email to user
+                try {
+                    Mail::to($user->email)->send(new PackagePurchaseEmail(
+                        $user,
+                        $currentPackage,
+                        $newPackageDetails,
+                        $upline,
+                        $commissionAmount
+                    ));
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send package upgrade email: ' . $e->getMessage());
+                }
             });
 
             return back()->with([
                 'flash' => [
-                    'success' => 'Package upgraded successfully to ' . $newPackageDetails['name'] . '!'
+                    'success' => 'Package upgraded successfully to ' . $newPackageDetails['name'] . '! Check your email for details.'
                 ]
             ]);
 
