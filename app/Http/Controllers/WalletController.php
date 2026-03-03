@@ -192,7 +192,7 @@ class WalletController extends Controller
                                 ])
                             ]);
 
-                            $updated++;
+                            // $updated++;
                             
                             \Log::info('M-Pesa transaction completed via cron', [
                                 'transaction_id' => $transaction->id,
