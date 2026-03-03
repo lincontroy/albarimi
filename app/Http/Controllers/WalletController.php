@@ -52,7 +52,7 @@ public function queryMpesaStatus($checkoutRequestID)
         // Make status query request
         $curl = curl_init();
         curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query',
+            CURLOPT_URL => 'https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -175,7 +175,7 @@ public function processPendingMpesaTransactions()
                     
                     if ($user) {
                         // Update user balance
-                        $user->increment('deposit_balance', $transaction->net_amount);
+                        $user->increment('deposit_balance', $transaction->amount);
                         
                         // Update transaction
                         $transaction->update([
@@ -1123,7 +1123,7 @@ public function depositStatusPage($transactionId)
             'balance' => $user->deposit_balance ?? 0,
             'min_transfer' => 100,
             'max_transfer' => 50000,
-            'transfer_fee_percentage' => 0.5, // 0.5% fee
+            'transfer_fee_percentage' => 0, // 0.5% fee
         ]);
     }
 
