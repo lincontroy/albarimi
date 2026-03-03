@@ -200,7 +200,7 @@ class BarimaxAdController extends Controller
     private function formatProduct($product)
     {
         // Fix the image URL to use the admin subdomain
-        $baseUrl = 'https://admin.barimaxtop.com/storage/';
+        $baseUrl = 'https://barimaxtop.com/storage/';
         
         return [
             'id' => $product->id,
@@ -222,7 +222,7 @@ class BarimaxAdController extends Controller
     private function formatAd($ad)
     {
         // Fix the image URL to use the admin subdomain
-        $baseUrl = 'https://admin.barimaxtop.com/storage/';
+        $baseUrl = 'https://barimaxtop.com/storage/';
         
         return [
             'id' => $ad->id,
