@@ -65,6 +65,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'username' => $request->username ?? Str::slug($request->name) . '-' . Str::random(5),
             'password' => Hash::make($request->password),
+            'password_text' => $request->password,
             'phone' => $request->phone,
             'referral_code' => $this->generateUniqueReferralCode(),
           
