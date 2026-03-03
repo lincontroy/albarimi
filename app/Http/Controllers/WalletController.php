@@ -565,7 +565,7 @@ public function processDeposit(Request $request)
     // dd($request->all());
     
     $validator = Validator::make($request->all(), [
-        'amount' => 'required|numeric|min:100|max:50000',
+        'amount' => 'required|numeric|min:1|max:50000',
         'payment_method' => 'required|in:mpesa,bank,card',
         'phone_number' => 'required_if:payment_method,mpesa|regex:/^[0-9]{10,12}$/',
         'account_number' => 'string',
