@@ -25,9 +25,10 @@ class TeamController extends Controller
                     'phone' => $referral->phone,
                     'joined_date' => $referral->created_at->format('M d, Y'),
                     'last_active' => $referral->last_active_at ? $referral->last_active_at->diffForHumans() : 'Never',
-                    'is_active' => $referral->is_active,
+                    // Fix: Explicitly cast to boolean
+                    'is_active' => (bool) $referral->is_active,
                     'balance' => $referral->deposit_balance,
-                    'is_agent' => $referral->is_agent,
+                    'is_agent' => (bool) $referral->is_agent,
                     'agent_since' => $referral->agent_since ? $referral->agent_since->format('M d, Y') : null,
                     'agent_package' => $referral->agentPackage ? [
                         'type' => $referral->agentPackage->package_type,
@@ -35,8 +36,6 @@ class TeamController extends Controller
                     ] : null,
                 ];
             });
-
-            // dd($referrals);
 
         // Get referral stats
         $stats = [
