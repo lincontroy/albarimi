@@ -333,7 +333,7 @@ const checkTransactionStatus = async (transactionId) => {
     const result = await Swal.fire({
         title: 'Checking Payment Status',
         html: 'Please wait while we confirm your payment...',
-        allowOutsideClick: false,
+        allowOutsideClick: true,
         didOpen: () => {
             Swal.showLoading();
         }
