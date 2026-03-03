@@ -18,6 +18,8 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
+
+
         
         // Get user's agent package
         $agentPackage = $user->agentPackage;
@@ -158,6 +160,9 @@ $recentReviews = [
                 'total_transactions' => $jobApplications + $activeEndorsements,
             ],
         ];
+
+
+        // dd($dashboardData);
         
         return Inertia::render('Dashboard', $dashboardData);
     }
