@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use App\Models\BarimaxAd;
 use App\Models\Product;
+use Illuminate\Support\Str;
 use App\Services\BarimaxAIService;
 
 class BarimaxAdController extends Controller
