@@ -36,7 +36,7 @@ class TeamController extends Controller
                 ];
             });
 
-            dd($referrals);
+            // dd($referrals);
 
         // Get referral stats
         $stats = [
