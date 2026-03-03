@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use App\Models\BarimaxAd;
 use App\Models\Product;
@@ -102,31 +103,97 @@ class BarimaxAdController extends Controller
      */
     public function downloadProductImage($id)
     {
-        $product = Product::findOrFail($id);
-        
-        if (!$product->image_path) {
-            return back()->with('error', 'No image found for this product.');
+        try {
+            // Find the product
+            $product = Product::findOrFail($id);
+            
+            // Check if product has image path
+            if (!$product->image_path) {
+                Log::error('Product has no image path', ['product_id' => $id]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No image found for this product.'
+                ], 404);
+            }
+            
+            // Log the path for debugging
+            Log::info('Attempting to download image:', [
+                'product_id' => $id,
+                'product_name' => $product->name,
+                'image_path' => $product->image_path,
+                'full_storage_path' => storage_path('app/public/' . $product->image_path),
+                'disk_exists' => Storage::disk('public')->exists($product->image_path) ? 'Yes' : 'No'
+            ]);
+            
+            // Check if file exists on the public disk
+            if (!Storage::disk('public')->exists($product->image_path)) {
+                Log::error('Image file not found on server', [
+                    'path' => $product->image_path,
+                    'full_path' => storage_path('app/public/' . $product->image_path)
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Image file not found on server.',
+                    'path' => $product->image_path
+                ], 404);
+            }
+            
+            // Get the full path to the image
+            $fullPath = Storage::disk('public')->path($product->image_path);
+            
+            // Check if file is readable
+            if (!file_exists($fullPath)) {
+                Log::error('File does not exist at path', ['full_path' => $fullPath]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'File does not exist.'
+                ], 404);
+            }
+            
+            if (!is_readable($fullPath)) {
+                Log::error('File is not readable', ['full_path' => $fullPath]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'File is not readable.'
+                ], 403);
+            }
+            
+            // Get file size
+            $fileSize = filesize($fullPath);
+            
+            // Generate a clean filename
+            $extension = pathinfo($product->image_path, PATHINFO_EXTENSION);
+            $cleanName = Str::slug($product->name) . '-' . $product->id . '.' . $extension;
+            
+            Log::info('Download successful', [
+                'file_size' => $fileSize,
+                'download_name' => $cleanName
+            ]);
+            
+            // Return download response with proper headers
+            return response()->download($fullPath, $cleanName, [
+                'Content-Type' => mime_content_type($fullPath),
+                'Content-Disposition' => 'attachment; filename="' . $cleanName . '"',
+                'Content-Length' => $fileSize,
+                'Cache-Control' => 'no-cache, must-revalidate',
+                'Pragma' => 'no-cache',
+                'Expires' => '0',
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Error downloading product image: ' . $e->getMessage(), [
+                'product_id' => $id,
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error downloading image: ' . $e->getMessage()
+            ], 500);
         }
-        
-        // Check if file exists
-        if (!Storage::disk('public')->exists($product->image_path)) {
-            return back()->with('error', 'Image file not found on server.');
-        }
-        
-        // Get the full path to the image
-        $fullPath = Storage::disk('public')->path($product->image_path);
-        
-        // Generate a clean filename
-        $extension = pathinfo($product->image_path, PATHINFO_EXTENSION);
-        $cleanName = Str::slug($product->name) . '-' . $product->id . '.' . $extension;
-        
-        // Return download response with proper headers
-        return response()->download($fullPath, $cleanName, [
-            'Content-Type' => mime_content_type($fullPath),
-            'Content-Disposition' => 'attachment; filename="' . $cleanName . '"',
-            'Cache-Control' => 'no-cache, must-revalidate',
-            'Pragma' => 'no-cache',
-        ]);
     }
 
     // Format product for response

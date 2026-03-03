@@ -63,14 +63,15 @@
                             
                             <!-- Download Button - FIXED -->
                             <div class="flex flex-wrap gap-3 mt-4">
-                                <a 
-                                    :href="latestProduct.download_url"
-                                    class="inline-flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                                    @click.prevent="downloadImage(latestProduct)"
+                                <button
+                                    @click="downloadImage(latestProduct)"
+                                    :disabled="downloading"
+                                    class="inline-flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:bg-purple-300 disabled:cursor-not-allowed"
                                 >
-                                    <Download :size="16" />
-                                    <span>Download Image</span>
-                                </a>
+                                    <Loader2 v-if="downloading" :size="16" class="animate-spin" />
+                                    <Download v-else :size="16" />
+                                    <span>{{ downloading ? 'Downloading...' : 'Download Image' }}</span>
+                                </button>
                                 
                                 <button
                                     @click="copyImageUrl(latestProduct.image_url)"
@@ -168,7 +169,40 @@ const downloadImage = async (product) => {
     downloading.value = true;
 
     try {
-        // Use fetch to get the image as a blob
+        // Create a hidden anchor element
+        const link = document.createElement('a');
+        link.href = product.download_url;
+        link.download = getDownloadFilename(product);
+        link.target = '_blank'; // Open in new tab to avoid navigation
+        link.rel = 'noopener noreferrer';
+        
+        // Append to body, click, and remove
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Small delay to show downloading state
+        setTimeout(() => {
+            downloading.value = false;
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Download error:', error);
+        alert('Failed to download image. Please try again.');
+        downloading.value = false;
+    }
+};
+
+// Alternative download method using fetch (more reliable but requires CORS)
+const downloadImageFetch = async (product) => {
+    if (!product?.download_url) {
+        alert('Download URL not available');
+        return;
+    }
+
+    downloading.value = true;
+
+    try {
         const response = await fetch(product.download_url, {
             method: 'GET',
             headers: {
@@ -178,7 +212,8 @@ const downloadImage = async (product) => {
         });
 
         if (!response.ok) {
-            throw new Error('Download failed');
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Download failed');
         }
 
         // Get the image as blob
@@ -195,17 +230,19 @@ const downloadImage = async (product) => {
         link.click();
         
         // Cleanup
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+        setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            downloading.value = false;
+        }, 100);
         
     } catch (error) {
         console.error('Download error:', error);
         alert('Failed to download image. Please try again.');
+        downloading.value = false;
         
         // Fallback: direct navigation to download URL
         window.open(product.download_url, '_blank');
-    } finally {
-        downloading.value = false;
     }
 };
 
@@ -302,5 +339,15 @@ const claimDiscount = async (adId) => {
     .bg-gray-100.p-6 {
         padding: 1rem;
     }
+}
+
+/* Loading animation */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
 }
 </style>
