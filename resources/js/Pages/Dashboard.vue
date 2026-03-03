@@ -109,16 +109,16 @@
 
                 <!-- Certification Status -->
                 <div class="bg-gradient-to-br from-emerald-600/40 to-green-600/40 backdrop-blur-xl border border-emerald-500/30 text-white rounded-2xl p-3 shadow-2xl shadow-emerald-500/20">
-                    <h3 class="text-lg font-bold mb-1">Verification Status</h3>
-                   
-                    <div class="mt-3 flex items-center space-x-2">
-                        <div class="w-2 h-2 rounded-full" :class="user.is_agent ? 'bg-green-500' : 'bg-yellow-500'"></div>
-                        <span class="text-sm">{{ user.is_agent ? 'Verified Agent' : 'Regular Member' }}</span>
-                    </div>
-                    <p v-if="certification.expires_at" class="text-xs text-emerald-400 mt-1">
-                        Expires: {{ formatDate(certification.expires_at) }}
-                    </p>
-                </div>
+    <h3 class="text-lg font-bold mb-1">Verification Status</h3>
+   
+    <div class="mt-3 flex items-center space-x-2">
+        <div class="w-2 h-2 rounded-full" :class="Boolean(user.is_agent) ? 'bg-green-500' : 'bg-yellow-500'"></div>
+        <span class="text-sm">{{ Boolean(user.is_agent) ? 'Verified Agent' : 'Regular Member' }}</span>
+    </div>
+    <p v-if="certification?.expires_at" class="text-xs text-emerald-400 mt-1">
+        Expires: {{ formatDate(certification.expires_at) }}
+    </p>
+</div>
 
                 <!-- Withdrawal Info -->
                 <div class="bg-gradient-to-br from-indigo-600/40 to-purple-600/40 backdrop-blur-xl border border-indigo-500/30 text-white rounded-2xl p-3 shadow-2xl shadow-indigo-500/20">
