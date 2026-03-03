@@ -282,7 +282,7 @@ const props = defineProps({
     },
     deposit_fee_percentage: {
         type: Number,
-        default: 1.5
+        default: 0
     }
 });
 

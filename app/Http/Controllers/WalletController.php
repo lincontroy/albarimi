@@ -462,9 +462,9 @@ public function checkTransactionStatus(Request $request, $transactionId)
         
         return Inertia::render('Wallet/Deposit', [
             'balance' => $user->deposit_balance ?? 0,
-            'min_deposit' => 100,
+            'min_deposit' => 1,
             'max_deposit' => 50000,
-            'deposit_fee_percentage' => 1.5, // 1.5% fee
+            'deposit_fee_percentage' => 0, // 1.5% fee
         ]);
     }
 
