@@ -61,8 +61,9 @@
                                 </span>
                             </div>
                             
-                            <!-- Download Button - FIXED -->
+                            <!-- Action Buttons -->
                             <div class="flex flex-wrap gap-3 mt-4">
+                                <!-- Download Button -->
                                 <button
                                     @click="downloadImage(latestProduct)"
                                     :disabled="downloading"
@@ -73,6 +74,7 @@
                                     <span>{{ downloading ? 'Downloading...' : 'Download Image' }}</span>
                                 </button>
                                 
+                                <!-- Copy URL Button -->
                                 <button
                                     @click="copyImageUrl(latestProduct.image_url)"
                                     class="inline-flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
@@ -106,7 +108,7 @@ import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import {
-    Sparkles, Gift, Copy, Download, Package,
+    Sparkles, Copy, Download, Package,
     Loader2
 } from 'lucide-vue-next';
 
@@ -133,97 +135,67 @@ const props = defineProps({
     },
 });
 
-const claiming = ref(false);
 const downloading = ref(false);
+const copying = ref(false);
 
-// Helper function to get filename from URL
+// Helper Functions
 const getFilenameFromUrl = (url) => {
     if (!url) return 'image.jpg';
     return url.split('/').pop() || 'image.jpg';
 };
 
-// Generate download filename based on product
 const getDownloadFilename = (product) => {
     if (!product) return 'image.jpg';
     
-    // Create a clean filename from product name
     const cleanName = product.name
         .toLowerCase()
         .replace(/[^a-z0-9]/g, '-')
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '');
     
-    // Get extension from URL or default to jpg
     const extension = product.image_url?.split('.').pop() || 'jpg';
-    
     return `${cleanName}-${product.id}.${extension}`;
 };
 
-// Download image function
-const downloadImage = async (product) => {
-    if (!product?.download_url) {
-        alert('Download URL not available');
-        return;
-    }
-
-    downloading.value = true;
-
-    try {
-        // Create a hidden anchor element
-        const link = document.createElement('a');
-        link.href = product.download_url;
-        link.download = getDownloadFilename(product);
-        link.target = '_blank'; // Open in new tab to avoid navigation
-        link.rel = 'noopener noreferrer';
-        
-        // Append to body, click, and remove
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        // Small delay to show downloading state
-        setTimeout(() => {
-            downloading.value = false;
-        }, 1000);
-        
-    } catch (error) {
-        console.error('Download error:', error);
-        alert('Failed to download image. Please try again.');
-        downloading.value = false;
-    }
+// Toast notification helper
+const showToast = (message, type = 'info') => {
+    // You can replace this with your preferred toast library
+    alert(message);
 };
 
-// Alternative download method using fetch (more reliable but requires CORS)
-const downloadImageFetch = async (product) => {
-    if (!product?.download_url) {
-        alert('Download URL not available');
+// FIXED: Download Image Function
+const downloadImage = async (product) => {
+    if (!product?.image_url) {
+        showToast('❌ Image URL not available', 'error');
         return;
     }
 
     downloading.value = true;
 
     try {
-        const response = await fetch(product.download_url, {
+        const filename = getDownloadFilename(product);
+        
+        // Method 1: Using fetch and blob (most reliable)
+        const response = await fetch(product.image_url, {
             method: 'GET',
+            mode: 'cors',
+            cache: 'no-cache',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-            },
+            }
         });
-
+        
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || 'Download failed');
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-
-        // Get the image as blob
+        
         const blob = await response.blob();
         
         // Create download link
-        const url = window.URL.createObjectURL(blob);
+        const blobUrl = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.href = url;
-        link.download = getDownloadFilename(product);
+        link.href = blobUrl;
+        link.download = filename;
         
         // Trigger download
         document.body.appendChild(link);
@@ -232,17 +204,75 @@ const downloadImageFetch = async (product) => {
         // Cleanup
         setTimeout(() => {
             document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
+            window.URL.revokeObjectURL(blobUrl);
             downloading.value = false;
         }, 100);
         
+        showToast('✅ Download started!', 'success');
+        
     } catch (error) {
         console.error('Download error:', error);
-        alert('Failed to download image. Please try again.');
-        downloading.value = false;
         
-        // Fallback: direct navigation to download URL
-        window.open(product.download_url, '_blank');
+        // Method 2: Fallback - try with download attribute
+        try {
+            const link = document.createElement('a');
+            link.href = product.image_url;
+            link.download = getDownloadFilename(product);
+            link.target = '_blank';
+            
+            document.body.appendChild(link);
+            link.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(link);
+                downloading.value = false;
+            }, 1000);
+            
+            showToast('✅ Download started!', 'success');
+            
+        } catch (fallbackError) {
+            // Method 3: Last resort - open in new tab
+            window.open(product.image_url, '_blank');
+            downloading.value = false;
+            showToast('ℹ️ Image opened in new tab. Right-click to save.', 'info');
+        }
+    }
+};
+
+// FIXED: Copy Image URL Function
+const copyImageUrl = async (url) => {
+    if (!url) {
+        showToast('❌ No URL to copy', 'error');
+        return;
+    }
+    
+    copying.value = true;
+    
+    try {
+        // Try modern clipboard API first
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(url);
+        } else {
+            // Fallback for older browsers
+            const textarea = document.createElement('textarea');
+            textarea.value = url;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+        
+        showToast('✅ Image URL copied to clipboard!', 'success');
+        
+    } catch (err) {
+        console.error('Failed to copy URL:', err);
+        showToast('❌ Failed to copy URL. Please try again.', 'error');
+    } finally {
+        setTimeout(() => {
+            copying.value = false;
+        }, 500);
     }
 };
 
@@ -251,51 +281,15 @@ const handleImageError = (e) => {
     e.target.src = 'https://via.placeholder.com/300x200?text=Image+Not+Found';
 };
 
-// Copy image URL to clipboard
-const copyImageUrl = async (url) => {
-    try {
-        await navigator.clipboard.writeText(url);
-        alert('Image URL copied to clipboard!');
-    } catch (err) {
-        console.error('Failed to copy URL:', err);
-        // Fallback
-        const textarea = document.createElement('textarea');
-        textarea.value = url;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        alert('Image URL copied to clipboard!');
-    }
-};
-
-// Copy discount code to clipboard
-const copyToClipboard = async (text) => {
-    try {
-        await navigator.clipboard.writeText(text);
-        alert('Code copied!');
-    } catch (err) {
-        console.error('Failed to copy:', err);
-        // Fallback
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        alert('Code copied!');
-    }
-};
-
-// Claim discount
+// Claim discount (if needed)
 const claimDiscount = async (adId) => {
     if (!props.user) {
-        alert('Please login to claim this discount.');
+        showToast('Please login to claim this discount.', 'info');
         router.visit('/login');
         return;
     }
 
-    claiming.value = true;
+    downloading.value = true;
 
     try {
         await router.post(`/barimax-ads/${adId}/claim`, {}, {
@@ -303,21 +297,20 @@ const claimDiscount = async (adId) => {
             onSuccess: (page) => {
                 const flash = page?.props?.flash || {};
                 if (flash.success) {
-                    alert(flash.success);
+                    showToast(flash.success, 'success');
                 } else if (flash.error) {
-                    alert(flash.error);
+                    showToast(flash.error, 'error');
                 }
             },
-            onError: (errors) => {
-                console.error('Error claiming discount:', errors);
-                alert('Failed to claim discount. Please try again.');
+            onError: () => {
+                showToast('Failed to claim discount. Please try again.', 'error');
             }
         });
     } catch (error) {
         console.error('Error claiming discount:', error);
-        alert('An unexpected error occurred.');
+        showToast('An unexpected error occurred.', 'error');
     } finally {
-        claiming.value = false;
+        downloading.value = false;
     }
 };
 </script>
@@ -349,5 +342,14 @@ const claimDiscount = async (adId) => {
 
 .animate-spin {
     animation: spin 1s linear infinite;
+}
+
+/* Button hover effects */
+button {
+    transition: all 0.2s ease;
+}
+
+button:active {
+    transform: scale(0.98);
 }
 </style>
