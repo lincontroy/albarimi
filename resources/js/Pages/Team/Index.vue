@@ -185,13 +185,13 @@
                                         <p class="text-white">{{ referral.last_active }}</p>
                                     </td>
                                     <td class="py-4 px-4">
-                                        <span 
-                                            :class="referral.is_active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'"
-                                            class="px-3 py-1 rounded-full text-xs font-semibold"
-                                        >
-                                            {{ referral.is_active ? 'Active' : 'Inactive' }}
-                                        </span>
-                                    </td>
+    <span 
+        :class="referral.is_active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'"
+        class="px-3 py-1 rounded-full text-xs font-semibold"
+    >
+        {{ referral.is_active ? 'Active' : 'Inactive' }}
+    </span>
+</td>
                                     <td class="py-4 px-4">
                                         <p class="text-white font-semibold">KES {{ referral.balance.toLocaleString() }}</p>
                                     </td>
