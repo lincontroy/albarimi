@@ -54,11 +54,11 @@ class BarimaxAd extends Model
     // Get current featured ad
     public static function getCurrentFeatured()
     {
-        return Cache::remember('current_featured_ad', now()->addHours(6), function () {
-            return self::featured()
-                ->orderBy('created_at', 'desc')
-                ->first();
-        });
+        // return Cache::remember('current_featured_ad', now()->addHours(6), function () {
+        //     return self::featured()
+        //         ->orderBy('created_at', 'desc')
+        //         ->first();
+        // });
     }
 
     // Get random discount percentage

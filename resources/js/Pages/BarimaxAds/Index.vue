@@ -1,3 +1,4 @@
+<!-- resources/js/Pages/BarimaxAds/Index.vue -->
 <template>
     <DashboardLayout title="Barimax AI Discounts">
         <!-- Breadcrumb -->
@@ -12,7 +13,7 @@
         <div class="p-4 lg:p-8">
             <div class="max-w-7xl mx-auto">
                 <!-- Stats Overview -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
                     <div class="bg-gradient-to-br from-purple-600/40 to-pink-600/40 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-6 shadow-2xl shadow-purple-500/20">
                         <div class="text-center">
                             <p class="text-purple-300 text-sm mb-1">Active Offers</p>
@@ -33,8 +34,108 @@
                     </div>
                     <div class="bg-gradient-to-br from-green-600/40 to-emerald-600/40 backdrop-blur-xl border border-green-500/30 rounded-2xl p-6 shadow-2xl shadow-green-500/20">
                         <div class="text-center">
-                            <p class="text-green-300 text-sm mb-1">Next Update</p>
+                            <p class="text-green-300 text-sm mb-1">Products</p>
+                            <p class="text-3xl font-bold text-white">{{ adStats.active_products }}/{{ adStats.total_products }}</p>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-br from-amber-600/40 to-orange-600/40 backdrop-blur-xl border border-amber-500/30 rounded-2xl p-6 shadow-2xl shadow-amber-500/20">
+                        <div class="text-center">
+                            <p class="text-amber-300 text-sm mb-1">Next Update</p>
                             <p class="text-3xl font-bold text-white">Midnight</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Latest Product Showcase -->
+                <div v-if="latestProduct" class="mb-8">
+                    <div class="relative overflow-hidden rounded-2xl shadow-2xl">
+                        <!-- Background Image -->
+                        <div class="absolute inset-0">
+                            <img 
+                                :src="latestProduct.image_url" 
+                                :alt="latestProduct.name"
+                                class="w-full h-full object-cover"
+                                loading="lazy"
+                            />
+                            <div class="absolute inset-0 bg-gradient-to-r from-green-900/80 to-blue-900/80"></div>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="relative p-8 lg:p-12">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2 rounded-full">
+                                    <Sparkles :size="16" />
+                                    <span class="font-bold">NEW ARRIVAL • LATEST PRODUCT</span>
+                                </div>
+                                <span class="text-white bg-black/30 px-4 py-2 rounded-full">
+                                    {{ latestProduct.category }}
+                                </span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                <!-- Product Info -->
+                                <div>
+                                    <h2 class="text-4xl lg:text-5xl font-bold text-white mb-4">
+                                        {{ latestProduct.name }}
+                                    </h2>
+                                    
+                                    <p class="text-gray-200 text-lg mb-6">
+                                        {{ latestProduct.description }}
+                                    </p>
+                                    
+                                    <div class="flex items-center space-x-6 mb-6">
+                                        <div>
+                                            <p class="text-gray-300 text-sm">Price</p>
+                                            <p class="text-3xl font-bold text-yellow-400">
+                                                {{ latestProduct.formatted_price }}
+                                            </p>
+                                        </div>
+                                        <div class="h-12 w-px bg-white/20"></div>
+                                        <div>
+                                            <p class="text-gray-300 text-sm">Stock Status</p>
+                                            <p :class="latestProduct.in_stock ? 'text-green-400' : 'text-red-400'" 
+                                               class="text-xl font-bold">
+                                                {{ latestProduct.in_stock ? 'In Stock' : 'Out of Stock' }}
+                                            </p>
+                                            <p v-if="latestProduct.in_stock" class="text-sm text-gray-300">
+                                                {{ latestProduct.stock }} units available
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex flex-col sm:flex-row gap-4">
+                                        <button
+                                            @click="viewProduct(latestProduct.id)"
+                                            class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold text-lg py-4 px-8 rounded-xl transition-all duration-200 shadow-2xl shadow-green-500/50 flex items-center justify-center space-x-3 group"
+                                        >
+                                            <Eye :size="24" class="group-hover:scale-110 transition-transform" />
+                                            <span>View Product Details</span>
+                                        </button>
+                                        
+                                        <button
+                                            @click="applyDiscountToProduct(latestProduct.id)"
+                                            class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-bold text-lg py-4 px-8 rounded-xl transition-all duration-200 border border-white/30 hover:border-white/50 flex items-center justify-center space-x-3 group"
+                                        >
+                                            <Gift :size="24" class="group-hover:scale-110 transition-transform" />
+                                            <span>Apply AI Discount</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Product Image -->
+                                <div class="hidden lg:block">
+                                    <div class="relative">
+                                        <img 
+                                            :src="latestProduct.image_url" 
+                                            :alt="latestProduct.name"
+                                            class="rounded-2xl shadow-2xl border-4 border-white/20"
+                                        />
+                                        <div class="absolute -top-4 -right-4 bg-gradient-to-r from-yellow-600 to-amber-600 text-white px-6 py-3 rounded-full font-bold transform rotate-12 shadow-2xl">
+                                            NEW
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -74,7 +175,7 @@
                                 
                                 <!-- Description -->
                                 <p class="text-gray-200 text-lg mb-6">
-                                    Exclusive AI-generated discount offer. Valid for 3 days only.
+                                    {{ featuredAd.description }}
                                 </p>
                                 
                                 <!-- Code & Timer -->
@@ -119,7 +220,7 @@
                                     <Loader2 v-if="claiming" :size="24" class="animate-spin" />
                                     <template v-else>
                                         <Gift :size="24" class="group-hover:scale-110 transition-transform" />
-                                        <span class="text-xl">CLAIM {{ featuredAd.discount_percentage }}% DISCOUNT</span>
+                                        <span>CLAIM {{ featuredAd.discount_percentage }}% DISCOUNT</span>
                                     </template>
                                 </button>
                                 
@@ -212,7 +313,7 @@
                 <div class="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl border border-blue-500/30 rounded-2xl p-8 shadow-2xl shadow-blue-500/20">
                     <h3 class="text-2xl font-bold text-white mb-6 text-center">How Barimax AI Discounts Work</h3>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div class="text-center">
                             <div class="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <Sparkles :size="28" class="text-white" />
@@ -242,6 +343,16 @@
                                 Claim your discount code and use it on any purchase
                             </p>
                         </div>
+
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-br from-amber-600 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Package :size="28" class="text-white" />
+                            </div>
+                            <h4 class="text-lg font-bold text-white mb-2">Latest Products</h4>
+                            <p class="text-gray-300 text-sm">
+                                See our newest products with exclusive discounts
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -263,13 +374,14 @@ import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import {
-    Sparkles, Gift, Clock, Copy,
+    Sparkles, Gift, Clock, Copy, Eye, Package,
     Loader2
 } from 'lucide-vue-next';
 
 const props = defineProps({
     featuredAd: Object,
     activeAds: Array,
+    latestProduct: Object,
     adStats: Object,
     categories: Object,
     user: Object,
@@ -311,6 +423,18 @@ const claimDiscount = async (adId) => {
         alert('An unexpected error occurred.');
     } finally {
         claiming.value = false;
+    }
+};
+
+const viewProduct = (productId) => {
+    router.visit(`/products/${productId}`);
+};
+
+const applyDiscountToProduct = (productId) => {
+    if (props.featuredAd) {
+        alert(`Use code ${props.featuredAd.discount_code} for ${props.featuredAd.discount_percentage}% OFF on this product!`);
+    } else {
+        alert('No active discount available. Check back at midnight for new offers!');
     }
 };
 </script>

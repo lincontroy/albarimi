@@ -1,4 +1,5 @@
 <?php
+// app/Http/Controllers/BarimaxAdController.php
 
 namespace App\Http\Controllers;
 
@@ -7,8 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Models\BarimaxAd;
+use App\Models\Product;
 use App\Services\BarimaxAIService;
-use Illuminate\Support\Facades\Cache;
 
 class BarimaxAdController extends Controller
 {
@@ -19,7 +20,7 @@ class BarimaxAdController extends Controller
         $this->aiService = $aiService;
     }
 
-    // Display Barimax Ads page
+    // Display Barimax Ads page with latest product
     public function index()
     {
         $user = Auth::user();
@@ -30,6 +31,12 @@ class BarimaxAdController extends Controller
         // Get active ads
         $activeAds = $this->aiService->getActiveAds(6);
         
+        // Get the latest product with image
+        $latestProduct = Product::whereNotNull('image_path')
+            ->where('is_active', true)
+            ->latest()
+            ->first();
+        
         // Get user's claimed discounts (you might want to create a separate model for this)
         $userDiscounts = [];
         
@@ -39,6 +46,17 @@ class BarimaxAdController extends Controller
             'active_ads' => BarimaxAd::active()->count(),
             'total_views' => BarimaxAd::sum('views_count'),
             'total_clicks' => BarimaxAd::sum('clicks_count'),
+            'total_products' => Product::count(),
+            'active_products' => Product::where('is_active', true)->count(),
+            'latest_product' => $latestProduct ? [
+                'id' => $latestProduct->id,
+                'name' => $latestProduct->name,
+                'price' => $latestProduct->price,
+                'formatted_price' => $latestProduct->formatted_price,
+                'image_url' => $latestProduct->image_url,
+                'category' => $latestProduct->category,
+                'stock' => $latestProduct->stock,
+            ] : null,
         ];
 
         return Inertia::render('BarimaxAds/Index', [
@@ -46,6 +64,19 @@ class BarimaxAdController extends Controller
             'activeAds' => $activeAds->map(function ($ad) {
                 return $this->formatAd($ad);
             }),
+            'latestProduct' => $latestProduct ? [
+                'id' => $latestProduct->id,
+                'name' => $latestProduct->name,
+                'description' => $latestProduct->description,
+                'price' => $latestProduct->price,
+                'formatted_price' => $latestProduct->formatted_price,
+                'image_url' => $latestProduct->image_url,
+                'thumbnail_url' => $latestProduct->thumbnail_url,
+                'category' => $latestProduct->category,
+                'stock' => $latestProduct->stock,
+                'in_stock' => $latestProduct->inStock(),
+                'created_at' => $latestProduct->created_at->format('M d, Y'),
+            ] : null,
             'userDiscounts' => $userDiscounts,
             'adStats' => $adStats,
             'categories' => BarimaxAd::getCategories(),
@@ -144,6 +175,39 @@ class BarimaxAdController extends Controller
                 'current_page' => $ads->currentPage(),
                 'last_page' => $ads->lastPage(),
             ],
+        ]);
+    }
+
+    // Get latest product (API endpoint)
+    public function getLatestProduct()
+    {
+        $product = Product::whereNotNull('image_path')
+            ->where('is_active', true)
+            ->latest()
+            ->first();
+        
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No products found'
+            ], 404);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'description' => $product->description,
+                'price' => $product->price,
+                'formatted_price' => $product->formatted_price,
+                'image_url' => $product->image_url,
+                'thumbnail_url' => $product->thumbnail_url,
+                'category' => $product->category,
+                'stock' => $product->stock,
+                'in_stock' => $product->inStock(),
+                'created_at' => $product->created_at->format('M d, Y'),
+            ]
         ]);
     }
 
