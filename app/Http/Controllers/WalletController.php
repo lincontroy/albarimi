@@ -174,6 +174,8 @@ class WalletController extends Controller
                             $cashback="5000";
                           }else if($amount=="4800"){
                             $cashback="10000";
+                          }else{
+                            $cashback="1000";      
                           }
                           $user->increment('agent_bonus', $cashback);
                             
