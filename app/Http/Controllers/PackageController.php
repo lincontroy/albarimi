@@ -87,7 +87,7 @@ class PackageController extends Controller
                 // Deduct amount from user balance
                 $user->decrement('deposit_balance', $packageDetails['amount']);
 
-                $commissionAmount = $packageDetails['amount'] * 0.80; // 80% commission
+                $commissionAmount = $packageDetails['amount'] * 0.85; // 80% commission
 
                 // Distribute commission to upline and send email
                 $uplineId = $user->referred_by;
@@ -97,7 +97,36 @@ class PackageController extends Controller
                     if ($upline) {
                         $upline->increment('deposit_balance', $commissionAmount);
                         $upline->increment('total_earned_from_referrals', $commissionAmount);
+
+                        $amount = $packageDetails['amount'];
+
+                        // $user=Auth::user();
+
+                        $package_name="";
+
+
+                        if($amount==1000){
+                            $cashback=2500;
+                            $package_name="Lite Package";
+                          }else if($amount==2400){
+                            $cashback=5000;
+                            $package_name="Pro Package";
+                          }else if($amount==4800){
+                            $cashback=10000;
+                            $package_name="Bariplus Package";
+                          }else{
+                            $cashback=0;      
+                          }
+
+                        //   dd($package_name);
                         
+
+                        $user->update([
+                            'package' => $package_name
+                        ]);
+                        $user->update([
+                            'is_active' => 1
+                        ]);
                         // Send bonus email to upline
                         try {
                             Mail::to($upline->email)->send(new UplineBonusEmail(
@@ -360,7 +389,7 @@ class PackageController extends Controller
                 // Deduct upgrade cost from user balance
                 $user->decrement('deposit_balance', $upgradeCost);
 
-                $commissionAmount = $upgradeCost * 0.80; // 80% commission
+                $commissionAmount = $upgradeCost * 0.85; // 80% commission
 
                 // Distribute commission to upline and send email
                 $uplineId = $user->referred_by;

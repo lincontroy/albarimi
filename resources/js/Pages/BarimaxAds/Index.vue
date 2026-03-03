@@ -8,7 +8,7 @@
                     <Sparkles :size="20" />
                     <span class="font-semibold">Product Of The Day</span>
                 </div>
-                <span class="text-sm opacity-90">{{ adStats.active_ads }} active offers</span>
+                <span class="text-sm opacity-90"> active offers</span>
             </div>
         </div>
         

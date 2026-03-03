@@ -171,26 +171,16 @@ class WalletController extends Controller
                           //upline id
                           $upline_id=$user->referred_by;
 
-                          if($upline_id){
-                            $upline=User::find($upline_id);
-                            $upline->increment('deposit_balance', $amount * 0.85); // 85% referral bonus
-                          }
+                        //   if($upline_id){
+                        //     $upline=User::find($upline_id);
+                        //     $upline->increment('deposit_balance', $amount * 0.85); // 85% referral bonus
+                        //   }
 
-                          if($amount=="1000"){
-                            $cashback=2500;
-                            $package_name="Lite Package";
-                          }else if($amount=="2400"){
-                            $cashback=5000;
-                            $package_name="Pro Package";
-                          }else if($amount=="4800"){
-                            $cashback=10000;
-                            $package_name="Bariplus Package";
-                          }else{
-                            $cashback=0;      
-                          }
-                          $user->increment('agent_bonus', $cashback);
-                          $user->update('package', $package_name);
-                          $user->update('is_active', 1);
+                         
+
+                       
+                        //   $user->increment('agent_bonus', $cashback);
+                          
                             
                         $transaction->update([
                                 'status' => 'completed',
