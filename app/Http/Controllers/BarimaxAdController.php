@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use App\Models\BarimaxAd;
 use App\Models\Product;
@@ -37,26 +38,10 @@ class BarimaxAdController extends Controller
             ->latest()
             ->first();
         
-        // Get user's claimed discounts (you might want to create a separate model for this)
-        $userDiscounts = [];
-        
         // Get ad statistics
         $adStats = [
-            'total_ads' => BarimaxAd::count(),
             'active_ads' => BarimaxAd::active()->count(),
             'total_views' => BarimaxAd::sum('views_count'),
-            'total_clicks' => BarimaxAd::sum('clicks_count'),
-            'total_products' => Product::count(),
-            'active_products' => Product::where('is_active', true)->count(),
-            'latest_product' => $latestProduct ? [
-                'id' => $latestProduct->id,
-                'name' => $latestProduct->name,
-                'price' => $latestProduct->price,
-                'formatted_price' => $latestProduct->formatted_price,
-                'image_url' => $latestProduct->image_url,
-                'category' => $latestProduct->category,
-                'stock' => $latestProduct->stock,
-            ] : null,
         ];
 
         return Inertia::render('BarimaxAds/Index', [
@@ -64,26 +49,11 @@ class BarimaxAdController extends Controller
             'activeAds' => $activeAds->map(function ($ad) {
                 return $this->formatAd($ad);
             }),
-            'latestProduct' => $latestProduct ? [
-                'id' => $latestProduct->id,
-                'name' => $latestProduct->name,
-                'description' => $latestProduct->description,
-                'price' => $latestProduct->price,
-                'formatted_price' => $latestProduct->formatted_price,
-                'image_url' => $latestProduct->image_url,
-                'thumbnail_url' => $latestProduct->thumbnail_url,
-                'category' => $latestProduct->category,
-                'stock' => $latestProduct->stock,
-                'in_stock' => $latestProduct->inStock(),
-                'created_at' => $latestProduct->created_at->format('M d, Y'),
-            ] : null,
-            'userDiscounts' => $userDiscounts,
+            'latestProduct' => $latestProduct ? $this->formatProduct($latestProduct) : null,
             'adStats' => $adStats,
-            'categories' => BarimaxAd::getCategories(),
             'user' => $user ? [
                 'id' => $user->id,
                 'name' => $user->name,
-                'has_claimed' => false, // You can implement this
             ] : null,
         ]);
     }
@@ -119,16 +89,73 @@ class BarimaxAdController extends Controller
         // Increment clicks
         $ad->incrementClicks();
         
-        // Here you would typically:
-        // 1. Create a user discount record
-        // 2. Apply discount to user's account
-        // 3. Send notification
-        
         return back()->with([
             'flash' => [
                 'success' => "Discount claimed successfully! Use code: {$ad->discount_code} for {$ad->discount_percentage}% OFF"
             ]
         ]);
+    }
+
+    // Download product image
+    public function downloadProductImage($id)
+    {
+        $product = Product::findOrFail($id);
+        
+        if (!$product->image_path) {
+            return back()->with('error', 'No image found for this product.');
+        }
+        
+        // Get the full path to the image
+        $path = Storage::disk('public')->path($product->image_path);
+        
+        // Generate a clean filename
+        $filename = Str::slug($product->name) . '.' . pathinfo($product->image_path, PATHINFO_EXTENSION);
+        
+        return response()->download($path, $filename, [
+            'Content-Type' => mime_content_type($path),
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    // Format product for response
+    private function formatProduct($product)
+    {
+        // Fix the image URL to use the admin subdomain
+        $baseUrl = 'https://admin.barimaxtop.com/storage/';
+        
+        return [
+            'id' => $product->id,
+            'name' => $product->name,
+            'description' => $product->description,
+            'price' => $product->price,
+            'formatted_price' => 'KES ' . number_format($product->price, 2),
+            'image_url' => $product->image_path ? $baseUrl . $product->image_path : null,
+            'thumbnail_url' => $product->thumbnail_path ? $baseUrl . $product->thumbnail_path : ($product->image_path ? $baseUrl . $product->image_path : null),
+            'category' => $product->category,
+            'stock' => $product->stock,
+            'in_stock' => $product->stock > 0,
+            'download_url' => route('barimax-ads.download-product', $product->id),
+        ];
+    }
+
+    // Format ad for response
+    private function formatAd($ad)
+    {
+        // Fix the image URL to use the admin subdomain
+        $baseUrl = 'https://admin.barimaxtop.com/storage/';
+        
+        return [
+            'id' => $ad->id,
+            'image_url' => $ad->image_url ? (str_starts_with($ad->image_url, 'http') ? $ad->image_url : $baseUrl . $ad->image_url) : null,
+            'hd_image_url' => $ad->hd_image_url ? (str_starts_with($ad->hd_image_url, 'http') ? $ad->hd_image_url : $baseUrl . $ad->hd_image_url) : null,
+            'caption' => $ad->caption,
+            'discount_percentage' => $ad->discount_percentage,
+            'discount_code' => $ad->discount_code,
+            'days_remaining' => $ad->days_remaining,
+            'description' => $ad->description,
+            'call_to_action' => $ad->call_to_action,
+            'gradient_colors' => $ad->gradient_colors,
+        ];
     }
 
     // Generate new ad (admin only)
@@ -153,96 +180,5 @@ class BarimaxAdController extends Controller
                 'message' => 'Failed to generate ad: ' . $e->getMessage(),
             ], 500);
         }
-    }
-
-    // Get all ads (admin)
-    public function getAllAds()
-    {
-        if (!Auth::user()->is_admin) {
-            abort(403, 'Unauthorized action.');
-        }
-        
-        $ads = BarimaxAd::orderBy('created_at', 'desc')
-            ->paginate(20);
-        
-        return Inertia::render('BarimaxAds/Admin', [
-            'ads' => $ads->through(function ($ad) {
-                return $this->formatAd($ad, true);
-            }),
-            'pagination' => [
-                'total' => $ads->total(),
-                'per_page' => $ads->perPage(),
-                'current_page' => $ads->currentPage(),
-                'last_page' => $ads->lastPage(),
-            ],
-        ]);
-    }
-
-    // Get latest product (API endpoint)
-    public function getLatestProduct()
-    {
-        $product = Product::whereNotNull('image_path')
-            ->where('is_active', true)
-            ->latest()
-            ->first();
-        
-        if (!$product) {
-            return response()->json([
-                'success' => false,
-                'message' => 'No products found'
-            ], 404);
-        }
-        
-        return response()->json([
-            'success' => true,
-            'product' => [
-                'id' => $product->id,
-                'name' => $product->name,
-                'description' => $product->description,
-                'price' => $product->price,
-                'formatted_price' => $product->formatted_price,
-                'image_url' => $product->image_url,
-                'thumbnail_url' => $product->thumbnail_url,
-                'category' => $product->category,
-                'stock' => $product->stock,
-                'in_stock' => $product->inStock(),
-                'created_at' => $product->created_at->format('M d, Y'),
-            ]
-        ]);
-    }
-
-    // Format ad for response
-    private function formatAd($ad, $includeStats = false)
-    {
-        $formatted = [
-            'id' => $ad->id,
-            'image_url' => $ad->image_url,
-            'hd_image_url' => $ad->hd_image_url,
-            'caption' => $ad->caption,
-            'discount_percentage' => $ad->discount_percentage,
-            'formatted_discount' => $ad->formatted_discount,
-            'discount_code' => $ad->discount_code,
-            'valid_until' => $ad->valid_until->format('M d, Y H:i'),
-            'days_remaining' => $ad->days_remaining,
-            'hours_remaining' => $ad->hours_remaining,
-            'category' => $ad->category,
-            'category_name' => BarimaxAd::getCategories()[$ad->category] ?? 'General',
-            'description' => $ad->description,
-            'call_to_action' => $ad->call_to_action,
-            'is_active' => $ad->is_active,
-            'is_expired' => $ad->isExpired(),
-            'gradient_colors' => $ad->gradient_colors,
-            'created_at' => $ad->created_at->format('M d, Y'),
-        ];
-        
-        if ($includeStats) {
-            $formatted['views_count'] = $ad->views_count;
-            $formatted['clicks_count'] = $ad->clicks_count;
-            $formatted['click_rate'] = $ad->views_count > 0 
-                ? round(($ad->clicks_count / $ad->views_count) * 100, 2)
-                : 0;
-        }
-        
-        return $formatted;
     }
 }

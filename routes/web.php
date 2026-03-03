@@ -38,6 +38,9 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
+    Route::get('/barimax-ads/download-product/{id}', [BarimaxAdController::class, 'downloadProductImage'])
+    ->name('barimax-ads.download-product');
+
 
 Route::get('/wallet/transaction/check-status/{transaction}', [WalletController::class, 'checkTransactionStatus'])
 ->name('wallet.transaction.check-status');

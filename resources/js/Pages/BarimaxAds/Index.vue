@@ -1,369 +1,161 @@
 <!-- resources/js/Pages/BarimaxAds/Index.vue -->
 <template>
-    <DashboardLayout title="Barimax AI Discounts">
-        <!-- Breadcrumb -->
-        <div class="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-sm text-white px-4 lg:px-8 py-3 flex items-center space-x-2 text-sm border-b border-purple-500/20">
-            <Sparkles :size="16" class="text-purple-400" />
-            <span>Barimax</span>
-            <span class="text-purple-400">›</span>
-            <span class="text-purple-300">AI Discounts</span>
+    <DashboardLayout title="AI Discounts">
+        <!-- Simple Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <Sparkles :size="20" />
+                    <span class="font-semibold">AI Discounts</span>
+                </div>
+                <span class="text-sm opacity-90">{{ adStats.active_ads }} active offers</span>
+            </div>
         </div>
         
         <!-- Main Content -->
-        <div class="p-4 lg:p-8">
-            <div class="max-w-7xl mx-auto">
-                <!-- Stats Overview -->
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-                    <div class="bg-gradient-to-br from-purple-600/40 to-pink-600/40 backdrop-blur-xl border border-purple-500/30 rounded-2xl p-6 shadow-2xl shadow-purple-500/20">
-                        <div class="text-center">
-                            <p class="text-purple-300 text-sm mb-1">Active Offers</p>
-                            <p class="text-3xl font-bold text-white">{{ adStats.active_ads }}</p>
-                        </div>
-                    </div>
-                    <div class="bg-gradient-to-br from-yellow-600/40 to-amber-600/40 backdrop-blur-xl border border-yellow-500/30 rounded-2xl p-6 shadow-2xl shadow-yellow-500/20">
-                        <div class="text-center">
-                            <p class="text-yellow-300 text-sm mb-1">Total Views</p>
-                            <p class="text-3xl font-bold text-white">{{ adStats.total_views.toLocaleString() }}</p>
-                        </div>
-                    </div>
-                    <div class="bg-gradient-to-br from-blue-600/40 to-cyan-600/40 backdrop-blur-xl border border-blue-500/30 rounded-2xl p-6 shadow-2xl shadow-blue-500/20">
-                        <div class="text-center">
-                            <p class="text-blue-300 text-sm mb-1">Total Clicks</p>
-                            <p class="text-3xl font-bold text-white">{{ adStats.total_clicks.toLocaleString() }}</p>
-                        </div>
-                    </div>
-                    <div class="bg-gradient-to-br from-green-600/40 to-emerald-600/40 backdrop-blur-xl border border-green-500/30 rounded-2xl p-6 shadow-2xl shadow-green-500/20">
-                        <div class="text-center">
-                            <p class="text-green-300 text-sm mb-1">Products</p>
-                            <p class="text-3xl font-bold text-white">{{ adStats.active_products }}/{{ adStats.total_products }}</p>
-                        </div>
-                    </div>
-                    <div class="bg-gradient-to-br from-amber-600/40 to-orange-600/40 backdrop-blur-xl border border-amber-500/30 rounded-2xl p-6 shadow-2xl shadow-amber-500/20">
-                        <div class="text-center">
-                            <p class="text-amber-300 text-sm mb-1">Next Update</p>
-                            <p class="text-3xl font-bold text-white">Midnight</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Latest Product Showcase -->
-                <div v-if="latestProduct" class="mb-8">
-                    <div class="relative overflow-hidden rounded-2xl shadow-2xl">
-                        <!-- Background Image -->
-                        <div class="absolute inset-0">
+        <div class="max-w-7xl mx-auto px-4 py-8">
+            <!-- Latest Product -->
+            <div v-if="latestProduct" class="mb-8">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="md:flex">
+                        <!-- Product Image -->
+                        <div class="md:w-1/3 bg-gray-100 p-6 flex items-center justify-center">
                             <img 
                                 :src="latestProduct.image_url" 
                                 :alt="latestProduct.name"
-                                class="w-full h-full object-cover"
-                                loading="lazy"
+                                class="max-h-48 object-contain"
                             />
-                            <div class="absolute inset-0 bg-gradient-to-r from-green-900/80 to-blue-900/80"></div>
                         </div>
                         
-                        <!-- Content -->
-                        <div class="relative p-8 lg:p-12">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2 rounded-full">
-                                    <Sparkles :size="16" />
-                                    <span class="font-bold">NEW ARRIVAL • LATEST PRODUCT</span>
+                        <!-- Product Info -->
+                        <div class="md:w-2/3 p-6">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <span class="text-xs font-semibold text-purple-600 uppercase tracking-wide">
+                                        Latest Product
+                                    </span>
+                                    <h2 class="text-2xl font-bold text-gray-900 mt-1">
+                                        {{ latestProduct.name }}
+                                    </h2>
                                 </div>
-                                <span class="text-white bg-black/30 px-4 py-2 rounded-full">
+                                <span class="text-2xl font-bold text-green-600">
+                                    {{ latestProduct.formatted_price }}
+                                </span>
+                            </div>
+                            
+                            <p class="text-gray-600 mt-3 line-clamp-2">
+                                {{ latestProduct.description }}
+                            </p>
+                            
+                            <div class="flex items-center space-x-4 mt-4">
+                                <span :class="latestProduct.in_stock ? 'text-green-600' : 'text-red-600'" 
+                                      class="text-sm font-medium">
+                                    {{ latestProduct.in_stock ? '✓ In Stock' : '✗ Out of Stock' }}
+                                </span>
+                                <span class="text-sm text-gray-500">
                                     {{ latestProduct.category }}
                                 </span>
                             </div>
                             
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                <!-- Product Info -->
-                                <div>
-                                    <h2 class="text-4xl lg:text-5xl font-bold text-white mb-4">
-                                        {{ latestProduct.name }}
-                                    </h2>
-                                    
-                                    <p class="text-gray-200 text-lg mb-6">
-                                        {{ latestProduct.description }}
-                                    </p>
-                                    
-                                    <div class="flex items-center space-x-6 mb-6">
-                                        <div>
-                                            <p class="text-gray-300 text-sm">Price</p>
-                                            <p class="text-3xl font-bold text-yellow-400">
-                                                {{ latestProduct.formatted_price }}
-                                            </p>
-                                        </div>
-                                        <div class="h-12 w-px bg-white/20"></div>
-                                        <div>
-                                            <p class="text-gray-300 text-sm">Stock Status</p>
-                                            <p :class="latestProduct.in_stock ? 'text-green-400' : 'text-red-400'" 
-                                               class="text-xl font-bold">
-                                                {{ latestProduct.in_stock ? 'In Stock' : 'Out of Stock' }}
-                                            </p>
-                                            <p v-if="latestProduct.in_stock" class="text-sm text-gray-300">
-                                                {{ latestProduct.stock }} units available
-                                            </p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex flex-col sm:flex-row gap-4">
-                                        <button
-                                            @click="viewProduct(latestProduct.id)"
-                                            class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold text-lg py-4 px-8 rounded-xl transition-all duration-200 shadow-2xl shadow-green-500/50 flex items-center justify-center space-x-3 group"
-                                        >
-                                            <Eye :size="24" class="group-hover:scale-110 transition-transform" />
-                                            <span>View Product Details</span>
-                                        </button>
-                                        
-                                        <button
-                                            @click="applyDiscountToProduct(latestProduct.id)"
-                                            class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-bold text-lg py-4 px-8 rounded-xl transition-all duration-200 border border-white/30 hover:border-white/50 flex items-center justify-center space-x-3 group"
-                                        >
-                                            <Gift :size="24" class="group-hover:scale-110 transition-transform" />
-                                            <span>Apply AI Discount</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <!-- Product Image -->
-                                <div class="hidden lg:block">
-                                    <div class="relative">
-                                        <img 
-                                            :src="latestProduct.image_url" 
-                                            :alt="latestProduct.name"
-                                            class="rounded-2xl shadow-2xl border-4 border-white/20"
-                                        />
-                                        <div class="absolute -top-4 -right-4 bg-gradient-to-r from-yellow-600 to-amber-600 text-white px-6 py-3 rounded-full font-bold transform rotate-12 shadow-2xl">
-                                            NEW
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- Download Button -->
+                            <a 
+                                :href="latestProduct.download_url"
+                                class="inline-flex items-center space-x-2 mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                            >
+                                <Download :size="16" />
+                                <span>Download Image</span>
+                            </a>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Featured Ad -->
-                <div v-if="featuredAd" class="mb-8">
-                    <div class="relative overflow-hidden rounded-2xl shadow-2xl">
-                        <!-- Background Image -->
-                        <div class="absolute inset-0">
-                            <img 
-                                :src="featuredAd.hd_image_url" 
-                                :alt="featuredAd.caption"
-                                class="w-full h-full object-cover"
-                                loading="lazy"
-                            />
-                            <div class="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40"></div>
+            <!-- Featured Ad -->
+            <div v-if="featuredAd" class="mb-8">
+                <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl shadow-lg overflow-hidden">
+                    <div class="p-6 text-white">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-semibold uppercase tracking-wide bg-white/20 px-3 py-1 rounded-full">
+                                Featured Offer
+                            </span>
+                            <span class="text-sm">{{ featuredAd.days_remaining }} days left</span>
                         </div>
                         
-                        <!-- Content -->
-                        <div class="relative p-8 lg:p-12">
-                            <div class="max-w-2xl">
-                                <!-- Badge -->
-                                <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-yellow-600 to-amber-600 text-white px-4 py-2 rounded-full mb-4">
-                                    <Sparkles :size="16" />
-                                    <span class="font-bold">AI-GENERATED • LIMITED TIME</span>
+                        <div class="text-4xl font-bold mb-2">
+                            {{ featuredAd.discount_percentage }}% OFF
+                        </div>
+                        
+                        <p class="text-lg mb-4">{{ featuredAd.caption }}</p>
+                        
+                        <div class="bg-black/20 rounded-lg p-4 mb-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span class="text-sm opacity-90">Discount Code</span>
+                                    <div class="text-xl font-mono font-bold">{{ featuredAd.discount_code }}</div>
                                 </div>
-                                
-                                <!-- Discount -->
-                                <div class="mb-4">
-                                    <div class="text-6xl lg:text-7xl font-bold text-white mb-2">
-                                        {{ featuredAd.discount_percentage }}% OFF
-                                    </div>
-                                    <div class="text-xl text-yellow-300 font-semibold">
-                                        {{ featuredAd.caption }}
-                                    </div>
-                                </div>
-                                
-                                <!-- Description -->
-                                <p class="text-gray-200 text-lg mb-6">
-                                    {{ featuredAd.description }}
-                                </p>
-                                
-                                <!-- Code & Timer -->
-                                <div class="flex flex-col lg:flex-row items-start lg:items-center gap-4 mb-6">
-                                    <div class="bg-black/50 border-2 border-dashed border-yellow-500/50 rounded-xl p-4">
-                                        <p class="text-gray-300 text-sm mb-1">Your Discount Code</p>
-                                        <div class="flex items-center space-x-3">
-                                            <code class="text-2xl font-bold text-yellow-400 tracking-wider">
-                                                {{ featuredAd.discount_code }}
-                                            </code>
-                                            <button 
-                                                @click="copyToClipboard(featuredAd.discount_code)"
-                                                class="text-yellow-400 hover:text-yellow-300"
-                                                title="Copy code"
-                                            >
-                                                <Copy :size="20" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="bg-black/50 border border-red-500/30 rounded-xl p-4">
-                                        <p class="text-gray-300 text-sm mb-1">Expires in</p>
-                                        <div class="flex items-center space-x-4">
-                                            <div class="text-center">
-                                                <div class="text-2xl font-bold text-white">{{ featuredAd.days_remaining }}</div>
-                                                <div class="text-xs text-gray-300">Days</div>
-                                            </div>
-                                            <div class="text-center">
-                                                <div class="text-2xl font-bold text-white">{{ featuredAd.hours_remaining % 24 }}</div>
-                                                <div class="text-xs text-gray-300">Hours</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- CTA Button -->
-                                <button
-                                    @click="claimDiscount(featuredAd.id)"
-                                    :disabled="claiming"
-                                    class="bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 disabled:from-slate-600 disabled:to-slate-600 disabled:cursor-not-allowed text-white font-bold text-lg py-4 px-8 rounded-xl transition-all duration-200 shadow-2xl shadow-yellow-500/50 flex items-center justify-center space-x-3 group"
+                                <button 
+                                    @click="copyToClipboard(featuredAd.discount_code)"
+                                    class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
                                 >
-                                    <Loader2 v-if="claiming" :size="24" class="animate-spin" />
-                                    <template v-else>
-                                        <Gift :size="24" class="group-hover:scale-110 transition-transform" />
-                                        <span>CLAIM {{ featuredAd.discount_percentage }}% DISCOUNT</span>
-                                    </template>
+                                    <Copy :size="16" />
+                                    <span>Copy</span>
                                 </button>
-                                
-                                <!-- Note -->
-                                <p class="text-gray-400 text-sm mt-4">
-                                    ⚡ New AI-generated offer every midnight
-                                </p>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Active Ads Grid -->
-                <div class="mb-8">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-2xl font-bold text-white">Active AI Offers</h3>
-                        <div class="text-sm text-purple-400 bg-purple-500/20 px-3 py-1 rounded-full">
-                            {{ activeAds.length }} Offers
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div 
-                            v-for="ad in activeAds" 
-                            :key="ad.id"
-                            class="group relative overflow-hidden rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 hover:-translate-y-1"
+                        
+                        <button
+                            @click="claimDiscount(featuredAd.id)"
+                            :disabled="claiming"
+                            class="w-full bg-white text-purple-600 hover:bg-gray-100 disabled:bg-gray-300 disabled:cursor-not-allowed font-semibold py-3 rounded-lg transition-colors flex items-center justify-center space-x-2"
                         >
-                            <!-- Background Image -->
-                            <div class="absolute inset-0">
-                                <img 
-                                    :src="ad.image_url" 
-                                    :alt="ad.caption"
-                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                    loading="lazy"
-                                />
-                                <div :class="ad.gradient_colors" class="absolute inset-0 opacity-90"></div>
-                            </div>
-                            
-                            <!-- Content -->
-                            <div class="relative p-6 h-64 flex flex-col justify-between">
-                                <!-- Top Section -->
-                                <div>
-                                    <div class="flex items-center justify-between mb-3">
-                                        <span class="text-xs font-bold text-white bg-black/30 px-3 py-1 rounded-full">
-                                            {{ ad.category_name }}
-                                        </span>
-                                        <span class="text-xs text-white bg-red-500/30 px-3 py-1 rounded-full">
-                                            {{ ad.days_remaining }}d left
-                                        </span>
-                                    </div>
-                                    
-                                    <h4 class="text-xl font-bold text-white mb-2 line-clamp-2">
-                                        {{ ad.caption }}
-                                    </h4>
-                                    
-                                    <p class="text-gray-200 text-sm line-clamp-2">
-                                        {{ ad.description }}
-                                    </p>
-                                </div>
-                                
-                                <!-- Bottom Section -->
-                                <div>
-                                    <div class="flex items-center justify-between mb-4">
-                                        <div>
-                                            <div class="text-3xl font-bold text-white">
-                                                {{ ad.discount_percentage }}% OFF
-                                            </div>
-                                            <div class="text-xs text-gray-300">Use code: {{ ad.discount_code }}</div>
-                                        </div>
-                                        <div class="text-right">
-                                            <div class="text-sm text-white">AI-Generated</div>
-                                            <div class="text-xs text-gray-300">Daily Offer</div>
-                                        </div>
-                                    </div>
-                                    
-                                    <button
-                                        @click="claimDiscount(ad.id)"
-                                        class="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-bold py-3 rounded-xl transition-all duration-200 border border-white/30 hover:border-white/50 flex items-center justify-center space-x-2 group"
-                                    >
-                                        <Gift :size="16" class="group-hover:scale-110 transition-transform" />
-                                        <span>{{ ad.call_to_action }}</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                            <Loader2 v-if="claiming" :size="18" class="animate-spin" />
+                            <template v-else>
+                                <Gift :size="18" />
+                                <span>Claim Discount</span>
+                            </template>
+                        </button>
                     </div>
                 </div>
+            </div>
 
-                <!-- How It Works -->
-                <div class="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl border border-blue-500/30 rounded-2xl p-8 shadow-2xl shadow-blue-500/20">
-                    <h3 class="text-2xl font-bold text-white mb-6 text-center">How Barimax AI Discounts Work</h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div class="text-center">
-                            <div class="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Sparkles :size="28" class="text-white" />
-                            </div>
-                            <h4 class="text-lg font-bold text-white mb-2">AI Generated</h4>
-                            <p class="text-gray-300 text-sm">
-                                Our AI creates unique discounts with HD images every midnight
-                            </p>
+            <!-- Active Offers Grid -->
+            <div v-if="activeAds.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div 
+                    v-for="ad in activeAds" 
+                    :key="ad.id"
+                    class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                >
+                    <div class="p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold text-purple-600 uppercase tracking-wide">
+                                {{ ad.discount_percentage }}% OFF
+                            </span>
+                            <span class="text-xs text-gray-500">{{ ad.days_remaining }}d left</span>
                         </div>
                         
-                        <div class="text-center">
-                            <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Clock :size="28" class="text-white" />
-                            </div>
-                            <h4 class="text-lg font-bold text-white mb-2">Limited Time</h4>
-                            <p class="text-gray-300 text-sm">
-                                Each offer is valid for 3 days only. New offers daily
-                            </p>
-                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-2">{{ ad.caption }}</h3>
                         
-                        <div class="text-center">
-                            <div class="w-16 h-16 bg-gradient-to-br from-green-600 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Gift :size="28" class="text-white" />
-                            </div>
-                            <h4 class="text-lg font-bold text-white mb-2">Claim & Save</h4>
-                            <p class="text-gray-300 text-sm">
-                                Claim your discount code and use it on any purchase
-                            </p>
-                        </div>
-
-                        <div class="text-center">
-                            <div class="w-16 h-16 bg-gradient-to-br from-amber-600 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Package :size="28" class="text-white" />
-                            </div>
-                            <h4 class="text-lg font-bold text-white mb-2">Latest Products</h4>
-                            <p class="text-gray-300 text-sm">
-                                See our newest products with exclusive discounts
-                            </p>
+                        <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ ad.description }}</p>
+                        
+                        <div class="flex items-center justify-between">
+                            <code class="text-sm bg-gray-100 px-2 py-1 rounded">{{ ad.discount_code }}</code>
+                            <button
+                                @click="claimDiscount(ad.id)"
+                                class="text-purple-600 hover:text-purple-800 font-medium text-sm flex items-center space-x-1"
+                            >
+                                <Gift :size="14" />
+                                <span>Claim</span>
+                            </button>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Next Update Timer -->
-                <div class="mt-8 text-center">
-                    <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-600/30 to-pink-600/30 border border-purple-500/30 rounded-xl px-6 py-3">
-                        <Clock :size="20" class="text-purple-400" />
-                        <span class="text-purple-300">Next AI discount update:</span>
-                        <span class="text-white font-bold">Midnight (00:00)</span>
-                    </div>
-                </div>
+            <!-- Empty State -->
+            <div v-else class="text-center py-12">
+                <Gift :size="48" class="mx-auto text-gray-400 mb-4" />
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No Active Offers</h3>
+                <p class="text-gray-600">Check back at midnight for new AI-generated discounts!</p>
             </div>
         </div>
     </DashboardLayout>
@@ -374,7 +166,7 @@ import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import {
-    Sparkles, Gift, Clock, Copy, Eye, Package,
+    Sparkles, Gift, Copy, Download,
     Loader2
 } from 'lucide-vue-next';
 
@@ -383,7 +175,6 @@ const props = defineProps({
     activeAds: Array,
     latestProduct: Object,
     adStats: Object,
-    categories: Object,
     user: Object,
 });
 
@@ -392,10 +183,9 @@ const claiming = ref(false);
 const copyToClipboard = async (text) => {
     try {
         await navigator.clipboard.writeText(text);
-        alert('Discount code copied to clipboard!');
+        alert('Code copied!');
     } catch (err) {
         console.error('Failed to copy:', err);
-        alert('Failed to copy code to clipboard.');
     }
 };
 
@@ -413,8 +203,7 @@ const claimDiscount = async (adId) => {
                     alert(flash.error);
                 }
             },
-            onError: (errors) => {
-                console.error('Error claiming discount:', errors);
+            onError: () => {
                 alert('Failed to claim discount. Please try again.');
             }
         });
@@ -423,18 +212,6 @@ const claimDiscount = async (adId) => {
         alert('An unexpected error occurred.');
     } finally {
         claiming.value = false;
-    }
-};
-
-const viewProduct = (productId) => {
-    router.visit(`/products/${productId}`);
-};
-
-const applyDiscountToProduct = (productId) => {
-    if (props.featuredAd) {
-        alert(`Use code ${props.featuredAd.discount_code} for ${props.featuredAd.discount_percentage}% OFF on this product!`);
-    } else {
-        alert('No active discount available. Check back at midnight for new offers!');
     }
 };
 </script>
