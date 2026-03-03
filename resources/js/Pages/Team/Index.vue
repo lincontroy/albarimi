@@ -228,10 +228,10 @@
                                 </div>
                                 <td class="py-4 px-4">
     <span 
-        :class="parseInt(referral.is_active) ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'"
+        :class="Number(referral.is_active) ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'"
         class="px-3 py-1 rounded-full text-xs font-semibold"
     >
-        {{ parseInt(referral.is_active) ? 'Active' : 'Inactive' }}
+        {{ Number(referral.is_active) ? 'Active' : 'Inactive' }}
     </span>
 </td>
                             </div>
