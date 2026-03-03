@@ -97,7 +97,9 @@ class BarimaxAdController extends Controller
         ]);
     }
 
-    // Download product image
+    /**
+     * Download product image by ID
+     */
     public function downloadProductImage($id)
     {
         $product = Product::findOrFail($id);
@@ -106,15 +108,24 @@ class BarimaxAdController extends Controller
             return back()->with('error', 'No image found for this product.');
         }
         
+        // Check if file exists
+        if (!Storage::disk('public')->exists($product->image_path)) {
+            return back()->with('error', 'Image file not found on server.');
+        }
+        
         // Get the full path to the image
-        $path = Storage::disk('public')->path($product->image_path);
+        $fullPath = Storage::disk('public')->path($product->image_path);
         
         // Generate a clean filename
-        $filename = Str::slug($product->name) . '.' . pathinfo($product->image_path, PATHINFO_EXTENSION);
+        $extension = pathinfo($product->image_path, PATHINFO_EXTENSION);
+        $cleanName = Str::slug($product->name) . '-' . $product->id . '.' . $extension;
         
-        return response()->download($path, $filename, [
-            'Content-Type' => mime_content_type($path),
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        // Return download response with proper headers
+        return response()->download($fullPath, $cleanName, [
+            'Content-Type' => mime_content_type($fullPath),
+            'Content-Disposition' => 'attachment; filename="' . $cleanName . '"',
+            'Cache-Control' => 'no-cache, must-revalidate',
+            'Pragma' => 'no-cache',
         ]);
     }
 
@@ -127,12 +138,13 @@ class BarimaxAdController extends Controller
         return [
             'id' => $product->id,
             'name' => $product->name,
-            'description' => $product->description,
+            'description' => $product->description ?? 'No description available',
             'price' => $product->price,
             'formatted_price' => 'KES ' . number_format($product->price, 2),
             'image_url' => $product->image_path ? $baseUrl . $product->image_path : null,
+            'image_path' => $product->image_path,
             'thumbnail_url' => $product->thumbnail_path ? $baseUrl . $product->thumbnail_path : ($product->image_path ? $baseUrl . $product->image_path : null),
-            'category' => $product->category,
+            'category' => $product->category ?? 'Uncategorized',
             'stock' => $product->stock,
             'in_stock' => $product->stock > 0,
             'download_url' => route('barimax-ads.download-product', $product->id),
@@ -153,8 +165,8 @@ class BarimaxAdController extends Controller
             'discount_percentage' => $ad->discount_percentage,
             'discount_code' => $ad->discount_code,
             'days_remaining' => $ad->days_remaining,
-            'description' => $ad->description,
-            'call_to_action' => $ad->call_to_action,
+            'description' => $ad->description ?? 'Limited time AI-generated discount offer',
+            'call_to_action' => $ad->call_to_action ?? 'Claim Discount',
             'gradient_colors' => $ad->gradient_colors,
         ];
     }
@@ -162,8 +174,11 @@ class BarimaxAdController extends Controller
     // Generate new ad (admin only)
     public function generateNewAd()
     {
-        if (!Auth::user()->is_admin) {
-            abort(403, 'Unauthorized action.');
+        if (!Auth::user() || !Auth::user()->is_admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action.'
+            ], 403);
         }
         
         try {

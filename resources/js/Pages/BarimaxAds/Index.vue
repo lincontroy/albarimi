@@ -65,10 +65,8 @@
                             <div class="flex flex-wrap gap-3 mt-4">
                                 <a 
                                     :href="latestProduct.download_url"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
                                     class="inline-flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                                    :download="getDownloadFilename(latestProduct)"
+                                    @click.prevent="downloadImage(latestProduct)"
                                 >
                                     <Download :size="16" />
                                     <span>Download Image</span>
@@ -135,6 +133,7 @@ const props = defineProps({
 });
 
 const claiming = ref(false);
+const downloading = ref(false);
 
 // Helper function to get filename from URL
 const getFilenameFromUrl = (url) => {
@@ -157,6 +156,57 @@ const getDownloadFilename = (product) => {
     const extension = product.image_url?.split('.').pop() || 'jpg';
     
     return `${cleanName}-${product.id}.${extension}`;
+};
+
+// Download image function
+const downloadImage = async (product) => {
+    if (!product?.download_url) {
+        alert('Download URL not available');
+        return;
+    }
+
+    downloading.value = true;
+
+    try {
+        // Use fetch to get the image as a blob
+        const response = await fetch(product.download_url, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Download failed');
+        }
+
+        // Get the image as blob
+        const blob = await response.blob();
+        
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = getDownloadFilename(product);
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        
+        // Cleanup
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+    } catch (error) {
+        console.error('Download error:', error);
+        alert('Failed to download image. Please try again.');
+        
+        // Fallback: direct navigation to download URL
+        window.open(product.download_url, '_blank');
+    } finally {
+        downloading.value = false;
+    }
 };
 
 // Handle image load error
