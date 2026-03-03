@@ -110,7 +110,7 @@
                 <!-- Certification Status -->
                 <div class="bg-gradient-to-br from-emerald-600/40 to-green-600/40 backdrop-blur-xl border border-emerald-500/30 text-white rounded-2xl p-3 shadow-2xl shadow-emerald-500/20">
                     <h3 class="text-lg font-bold mb-1">Verification Status</h3>
-                    <p class="text-2xl font-bold">{{ certification.status }}</p>
+                   
                     <p class="text-sm mt-1" :class="certification.verified ? 'text-emerald-300' : 'text-yellow-300'">
                         {{ user.is_agent ? 'Verified Agent' : 'Pending Verification' }}
                     </p>
