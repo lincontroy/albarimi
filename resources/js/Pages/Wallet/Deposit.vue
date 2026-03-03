@@ -289,6 +289,9 @@ const props = defineProps({
 
 const loading = ref(false);
 const checkingStatus = ref(false);
+let statusCheckInterval = null;
+let statusTimeout = null;
+
 const quickAmounts = [500, 1000, 2000, 5000, 10000, 20000];
 
 const paymentMethods = [
@@ -327,19 +330,65 @@ const formatCurrency = (amount) => {
     });
 };
 
+// Clean up intervals on component unmount
+onMounted(() => {
+    const token = document.querySelector('meta[name="csrf-token"]');
+    if (!token) {
+        console.error('CSRF token meta tag not found!');
+    }
+});
+
+onMounted(() => {
+    // Clean up on unmount
+    return () => {
+        if (statusCheckInterval) {
+            clearInterval(statusCheckInterval);
+        }
+        if (statusTimeout) {
+            clearTimeout(statusTimeout);
+        }
+    };
+});
+
+const stopStatusChecking = () => {
+    if (statusCheckInterval) {
+        clearInterval(statusCheckInterval);
+        statusCheckInterval = null;
+    }
+    if (statusTimeout) {
+        clearTimeout(statusTimeout);
+        statusTimeout = null;
+    }
+    checkingStatus.value = false;
+};
+
 const checkTransactionStatus = async (transactionId) => {
+    // Stop any existing checking
+    stopStatusChecking();
+    
     checkingStatus.value = true;
     
-    const result = await Swal.fire({
-        title: 'Checking Payment Status',
-        html: 'Please wait while we confirm your payment...',
-        allowOutsideClick: true,
-        didOpen: () => {
-            Swal.showLoading();
-        }
+    // Close any existing Swal dialogs
+    await Swal.close();
+    
+    // Show processing dialog
+    Swal.fire({
+        title: 'Processing Payment',
+        html: `
+            <div class="text-center">
+                <div class="mb-4">
+                    <div class="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent mx-auto"></div>
+                </div>
+                <p class="mb-2">Please wait while we confirm your payment...</p>
+                <p class="text-sm text-gray-500">Transaction ID: ${transactionId}</p>
+                <p class="text-xs text-gray-400 mt-2">This may take a few moments</p>
+            </div>
+        `,
+        allowOutsideClick: false,
+        showConfirmButton: false
     });
 
-    const checkInterval = setInterval(async () => {
+    statusCheckInterval = setInterval(async () => {
         try {
             const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             
@@ -359,9 +408,13 @@ const checkTransactionStatus = async (transactionId) => {
             
             if (data && data.status) {
                 if (data.status === 'completed') {
-                    clearInterval(checkInterval);
-                    checkingStatus.value = false;
+                    // Stop checking immediately
+                    stopStatusChecking();
                     
+                    // Close the processing dialog
+                    await Swal.close();
+                    
+                    // Show success message
                     await Swal.fire({
                         icon: 'success',
                         title: 'Payment Successful!',
@@ -379,8 +432,11 @@ const checkTransactionStatus = async (transactionId) => {
                     window.location.href = '/wallet';
                     
                 } else if (data.status === 'failed') {
-                    clearInterval(checkInterval);
-                    checkingStatus.value = false;
+                    // Stop checking immediately
+                    stopStatusChecking();
+                    
+                    // Close the processing dialog
+                    await Swal.close();
                     
                     await Swal.fire({
                         icon: 'error',
@@ -392,16 +448,21 @@ const checkTransactionStatus = async (transactionId) => {
                     
                     window.location.href = '/wallet/deposit';
                 }
+                // If still pending, continue checking
             }
         } catch (error) {
             console.error('Status check error:', error);
         }
     }, 3000);
 
-    setTimeout(() => {
-        clearInterval(checkInterval);
+    // Stop checking after 2 minutes
+    statusTimeout = setTimeout(() => {
         if (checkingStatus.value) {
-            checkingStatus.value = false;
+            stopStatusChecking();
+            
+            // Close the processing dialog
+            Swal.close();
+            
             Swal.fire({
                 icon: 'info',
                 title: 'Still Processing',
@@ -522,6 +583,10 @@ const submitDeposit = async () => {
 
         if (data && data.success) {
             if (data.redirect) {
+                // Close any existing dialogs
+                await Swal.close();
+                
+                // Show M-Pesa prompt message
                 await Swal.fire({
                     icon: 'info',
                     title: 'M-Pesa Prompt Sent',
@@ -570,11 +635,4 @@ const submitDeposit = async () => {
         loading.value = false;
     }
 };
-
-onMounted(() => {
-    const token = document.querySelector('meta[name="csrf-token"]');
-    if (!token) {
-        console.error('CSRF token meta tag not found!');
-    }
-});
 </script>
