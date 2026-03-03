@@ -69,10 +69,29 @@
                             </p>
                         </div>
 
+
+                        <div>
+                            <label for="username" class="block text-sm font-medium text-purple-300 mb-2">
+                              Username
+                            </label>
+                            <input
+                                id="username"
+                                v-model="form.username"
+                                type="text"
+                                required
+                                class="w-full bg-black/30 border border-purple-500/30 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-500/50 transition-all"
+                                placeholder="john_doe"
+                            />
+                            <p v-if="form.errors.username" class="mt-2 text-red-400 text-sm">
+                                {{ form.errors.username }}
+                            </p>
+                        </div>
+
+
                         <!-- Phone (Optional) -->
                         <div>
                             <label for="phone" class="block text-sm font-medium text-purple-300 mb-2">
-                                Phone Number (Optional)
+                                Phone Number
                             </label>
                             <input
                                 id="phone"
@@ -194,6 +213,7 @@ const props = defineProps({
 const form = useForm({
     name: '',
     email: '',
+    username: '',
     phone: '',
     password: '',
     password_confirmation: '',

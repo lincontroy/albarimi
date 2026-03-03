@@ -27,7 +27,7 @@ class RegisteredUserController extends Controller
         $referrer = null;
         
         if ($referralCode) {
-            $referrer = User::where('id', $referralCode)->first();
+            $referrer = User::where('username', $referralCode)->first();
         }
 
         return Inertia::render('Auth/Register', [
@@ -52,6 +52,7 @@ class RegisteredUserController extends Controller
         
         $request->validate([
             'name' => 'required|string|max:255',
+            'username' => 'nullable|string|max:255|unique:'.User::class,
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'phone' => 'nullable|string|max:20',
@@ -62,6 +63,7 @@ class RegisteredUserController extends Controller
         $userData = [
             'name' => $request->name,
             'email' => $request->email,
+            'username' => $request->username ?? Str::slug($request->name) . '-' . Str::random(5),
             'password' => Hash::make($request->password),
             'phone' => $request->phone,
             'referral_code' => $this->generateUniqueReferralCode(),
@@ -76,9 +78,10 @@ class RegisteredUserController extends Controller
         // Handle referral if provided
       
         if ($referralCode) {
-            $referrer = User::where('id', $referralCode)->first();
+            $referrer = User::where('username', $referralCode)->first();
             if ($referrer) {
-                $userData['referred_by'] = $referralCode;
+                $id= $referrer->id;
+                $userData['referred_by'] = $id;
             }
         }
 

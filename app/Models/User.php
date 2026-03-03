@@ -111,7 +111,7 @@ class User extends Authenticatable
     // Generate referral link
     public function getReferralLinkAttribute()
     {
-        return url('/register?ref=' . $this->id);
+        return url('/register?ref=' . $this->username);
     }
 
     // Check if user is active (logged in within last 7 days)
