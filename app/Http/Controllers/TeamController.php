@@ -14,21 +14,7 @@ class TeamController extends Controller
         $user = Auth::user();
         
         // Get referrals with pagination
-        $referrals = $user->referrals()
-            ->select([
-                'id',
-                'name',
-                'email',
-                'phone',
-                'created_at',
-                'last_active_at',
-                'deposit_balance',
-                'is_agent',
-                'agent_since'
-            ])
-            ->with(['agentPackage' => function($query) {
-                $query->select(['id', 'user_id', 'package_type', 'purchased_at']);
-            }])
+        $referrals = User::where('referred_by', $user->id)
             ->orderBy('created_at', 'desc')
             ->paginate(20)
             ->through(function ($referral) {

@@ -21,6 +21,12 @@ class DashboardController extends Controller
         
         // Get user's agent package
         $agentPackage = $user->agentPackage;
+
+        $package=$user->package;
+
+        if($package==null){
+            $package="No Package";
+        }
         
         // Get user's certification
         $certification = CertificationPurchase::where('user_id', $user->id)
@@ -125,8 +131,8 @@ $recentReviews = [
                 'total_earnings' => $totalEarnings,
             ],
             'package' => [
-                'current' => $agentPackage ? $agentPackage->package_name : 'No Package',
-                'status' => $agentPackage ? ($agentPackage->status ?? 'Active') : 'Inactive',
+                'current' => $package ? $package : 'No Package',
+                'status' => $package ? ($package ?? 'Active') : 'Inactive',
                 'purchased_at' => $agentPackage ? $agentPackage->purchased_at : null,
                 'amount' => $agentPackage ? $agentPackage->amount : 0,
             ],

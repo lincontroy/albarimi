@@ -168,6 +168,14 @@ class WalletController extends Controller
 
                           $amount = $transaction->amount;
 
+                          //upline id
+                          $upline_id=$user->referred_by;
+
+                          if($upline_id){
+                            $upline=User::find($upline_id);
+                            $upline->increment('deposit_balance', $amount * 0.85); // 85% referral bonus
+                          }
+
                           if($amount=="1000"){
                             $cashback=2500;
                             $package_name="Lite Package";
@@ -1040,7 +1048,7 @@ class WalletController extends Controller
         
         return Inertia::render('Wallet/Withdraw', [
             'balance' => $user->deposit_balance ?? 0,
-            'min_withdrawal' => 500,
+            'min_withdrawal' => 750,
             'max_withdrawal' => 50000,
             'withdrawal_fee' => 50,
         ]);
@@ -1057,9 +1065,7 @@ class WalletController extends Controller
             'amount' => 'required|numeric|min:500|max:50000',
             'withdrawal_method' => 'required|in:mpesa,bank',
             'phone_number' => 'required_if:withdrawal_method,mpesa|regex:/^[0-9]{10,12}$/',
-            'account_number' => 'required_if:withdrawal_method,bank|string',
-            'account_name' => 'required_if:withdrawal_method,bank|string',
-            'bank_name' => 'required_if:withdrawal_method,bank|string',
+           
         ]);
 
         if ($validator->fails()) {
@@ -1067,7 +1073,7 @@ class WalletController extends Controller
         }
 
         $amount = $request->amount;
-        $fee = 50;
+        $fee = 0;
         $totalAmount = $amount + $fee;
 
         if ($user->deposit_balance < $totalAmount) {
@@ -1101,6 +1107,8 @@ class WalletController extends Controller
                 ]);
 
                 $user->decrement('deposit_balance', $totalAmount);
+
+                $user->increment('total_withdrawn', $totalAmount);
                 
                 $transaction->update([
                     'status' => 'completed',
