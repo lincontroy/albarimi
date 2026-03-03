@@ -46,6 +46,8 @@ return array(
     'App\\Http\\Requests\\Auth\\LoginRequest' => $baseDir . '/app/Http/Requests/Auth/LoginRequest.php',
     'App\\Http\\Requests\\ProfileUpdateRequest' => $baseDir . '/app/Http/Requests/ProfileUpdateRequest.php',
     'App\\Mail\\LoginNotification' => $baseDir . '/app/Mail/LoginNotification.php',
+    'App\\Mail\\PackagePurchaseEmail' => $baseDir . '/app/Mail/PackagePurchaseEmail.php',
+    'App\\Mail\\UplineBonusEmail' => $baseDir . '/app/Mail/UplineBonusEmail.php',
     'App\\Mail\\WelcomeEmail' => $baseDir . '/app/Mail/WelcomeEmail.php',
     'App\\Models\\AgentPackagePurchase' => $baseDir . '/app/Models/AgentPackagePurchase.php',
     'App\\Models\\BarimaxAd' => $baseDir . '/app/Models/BarimaxAd.php',

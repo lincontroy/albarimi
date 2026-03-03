@@ -691,6 +691,8 @@ class ComposerStaticInitc514d8f7b9fc5970bdd94287905ef584
         'App\\Http\\Requests\\Auth\\LoginRequest' => __DIR__ . '/../..' . '/app/Http/Requests/Auth/LoginRequest.php',
         'App\\Http\\Requests\\ProfileUpdateRequest' => __DIR__ . '/../..' . '/app/Http/Requests/ProfileUpdateRequest.php',
         'App\\Mail\\LoginNotification' => __DIR__ . '/../..' . '/app/Mail/LoginNotification.php',
+        'App\\Mail\\PackagePurchaseEmail' => __DIR__ . '/../..' . '/app/Mail/PackagePurchaseEmail.php',
+        'App\\Mail\\UplineBonusEmail' => __DIR__ . '/../..' . '/app/Mail/UplineBonusEmail.php',
         'App\\Mail\\WelcomeEmail' => __DIR__ . '/../..' . '/app/Mail/WelcomeEmail.php',
         'App\\Models\\AgentPackagePurchase' => __DIR__ . '/../..' . '/app/Models/AgentPackagePurchase.php',
         'App\\Models\\BarimaxAd' => __DIR__ . '/../..' . '/app/Models/BarimaxAd.php',

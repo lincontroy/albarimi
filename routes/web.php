@@ -35,9 +35,15 @@ Route::get('/', function () {
     return redirect('/dashboard'); // Simple redirect
 });
 
+Route::get('/wallet/transaction/check-status/{transaction}', [WalletController::class, 'checkTransactionStatus'])
+    ->name('wallet.transaction.check-status');
+
 Route::middleware(['auth', 'verified'])->group(function () {
 
-
+    // M-Pesa routes
+Route::get('/wallet/deposit/status/{transaction}', [WalletController::class, 'depositStatusPage'])->name('wallet.deposit.status');
+Route::get('/wallet/deposit/check/{transaction}', [WalletController::class, 'depositStatus'])->name('wallet.deposit.check');
+Route::get('/registerUrl', [WalletController::class, 'registerurl'])->name('registerUrl');
      // Cash Flow Routes
      Route::prefix('cash-flow')->name('cash-flow.')->group(function () {
         // Submit Views
