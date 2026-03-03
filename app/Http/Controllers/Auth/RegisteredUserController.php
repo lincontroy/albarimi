@@ -99,7 +99,7 @@ class RegisteredUserController extends Controller
                 $referrer->increment('active_referral_count');
                 
                 // Award referral bonus to referrer (optional)
-                $referrerBonus = 100; // KES 100 bonus for each referral
+                $referrerBonus = 0; // KES 100 bonus for each referral
                 $referrer->increment('deposit_balance', $referrerBonus);
                 $referrer->increment('total_earned_from_referrals', $referrerBonus);
             }

@@ -258,14 +258,15 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue';
-import { router, Link } from '@inertiajs/vue3';
+import { ref, computed, reactive, onMounted } from 'vue';
+import { Link } from '@inertiajs/vue3';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
 import {
     Wallet, DollarSign, CreditCard, Loader2,
     AlertCircle, Info, Shield, CheckCircle,
     Phone, Building, CreditCard as CardIcon
 } from 'lucide-vue-next';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
     balance: {
@@ -282,11 +283,12 @@ const props = defineProps({
     },
     deposit_fee_percentage: {
         type: Number,
-        default: 0
+        default: 1.5
     }
 });
 
 const loading = ref(false);
+const checkingStatus = ref(false);
 const quickAmounts = [500, 1000, 2000, 5000, 10000, 20000];
 
 const paymentMethods = [
@@ -303,7 +305,6 @@ const form = reactive({
     card_number: '',
 });
 
-// Calculate fees and amounts
 const processingFee = computed(() => {
     const amount = parseFloat(form.amount) || 0;
     return amount * (props.deposit_fee_percentage / 100);
@@ -318,7 +319,6 @@ const newBalance = computed(() => {
     return parseFloat(props.balance) + netAmount.value;
 });
 
-// Utility functions
 const formatCurrency = (amount) => {
     const num = parseFloat(amount) || 0;
     return num.toLocaleString('en-KE', {
@@ -327,41 +327,254 @@ const formatCurrency = (amount) => {
     });
 };
 
+const checkTransactionStatus = async (transactionId) => {
+    checkingStatus.value = true;
+    
+    const result = await Swal.fire({
+        title: 'Checking Payment Status',
+        html: 'Please wait while we confirm your payment...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    const checkInterval = setInterval(async () => {
+        try {
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            
+            const response = await fetch(`/wallet/deposit/check/${transactionId}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    ...(token && { 'X-CSRF-TOKEN': token })
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            
+            const data = await response.json();
+            
+            if (data && data.status) {
+                if (data.status === 'completed') {
+                    clearInterval(checkInterval);
+                    checkingStatus.value = false;
+                    
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Payment Successful!',
+                        html: `
+                            <div class="text-center">
+                                <p class="mb-2">Your deposit has been completed successfully!</p>
+                                <p class="text-sm text-gray-600">Transaction ID: ${data.transaction_id || transactionId}</p>
+                                ${data.checkout_request_id ? `<p class="text-xs text-gray-500">M-Pesa Ref: ${data.checkout_request_id}</p>` : ''}
+                            </div>
+                        `,
+                        confirmButtonColor: '#10b981',
+                        confirmButtonText: 'View Wallet'
+                    });
+                    
+                    window.location.href = '/wallet';
+                    
+                } else if (data.status === 'failed') {
+                    clearInterval(checkInterval);
+                    checkingStatus.value = false;
+                    
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Payment Failed',
+                        text: data.message || 'Your payment could not be processed. Please try again.',
+                        confirmButtonColor: '#ef4444',
+                        confirmButtonText: 'Try Again'
+                    });
+                    
+                    window.location.href = '/wallet/deposit';
+                }
+            }
+        } catch (error) {
+            console.error('Status check error:', error);
+        }
+    }, 3000);
+
+    setTimeout(() => {
+        clearInterval(checkInterval);
+        if (checkingStatus.value) {
+            checkingStatus.value = false;
+            Swal.fire({
+                icon: 'info',
+                title: 'Still Processing',
+                html: `
+                    <div class="text-center">
+                        <p class="mb-2">Your payment is still being processed.</p>
+                        <p class="text-sm text-gray-600">You can check the status in your transaction history.</p>
+                    </div>
+                `,
+                confirmButtonColor: '#3b82f6',
+                confirmButtonText: 'View History'
+            }).then(() => {
+                window.location.href = '/wallet/history';
+            });
+        }
+    }, 120000);
+};
+
 const submitDeposit = async () => {
     if (!form.amount || form.amount < props.min_deposit || form.amount > props.max_deposit) {
-        alert(`Deposit amount must be between KES ${props.min_deposit.toLocaleString()} and KES ${props.max_deposit.toLocaleString()}`);
+        await Swal.fire({
+            icon: 'warning',
+            title: 'Invalid Amount',
+            text: `Deposit amount must be between KES ${props.min_deposit.toLocaleString()} and KES ${props.max_deposit.toLocaleString()}`,
+            confirmButtonColor: '#f59e0b'
+        });
         return;
     }
 
     if (!form.payment_method) {
-        alert('Please select a payment method');
+        await Swal.fire({
+            icon: 'warning',
+            title: 'Payment Method Required',
+            text: 'Please select a payment method',
+            confirmButtonColor: '#f59e0b'
+        });
         return;
     }
 
-    const confirmMessage = `Are you sure you want to deposit KES ${formatCurrency(form.amount)} via ${form.payment_method.toUpperCase()}? A fee of KES ${formatCurrency(processingFee.value)} will be charged.`;
+    if (form.payment_method === 'mpesa' && !form.phone_number) {
+        await Swal.fire({
+            icon: 'warning',
+            title: 'Phone Number Required',
+            text: 'Please enter your M-Pesa phone number',
+            confirmButtonColor: '#f59e0b'
+        });
+        return;
+    }
 
-    if (!confirm(confirmMessage)) {
+    if (form.payment_method === 'mpesa') {
+        const phoneRegex = /^[0-9]{10,12}$/;
+        if (!phoneRegex.test(form.phone_number)) {
+            await Swal.fire({
+                icon: 'warning',
+                title: 'Invalid Phone Number',
+                text: 'Please enter a valid phone number (10-12 digits)',
+                confirmButtonColor: '#f59e0b'
+            });
+            return;
+        }
+    }
+
+    const result = await Swal.fire({
+        title: 'Confirm Deposit',
+        html: `
+            <div class="text-left">
+                <p class="mb-2">Please confirm your deposit details:</p>
+                <div class="bg-gray-100 p-3 rounded-lg">
+                    <p><strong>Amount:</strong> KES ${formatCurrency(form.amount)}</p>
+                    <p><strong>Method:</strong> ${form.payment_method.toUpperCase()}</p>
+                    ${form.payment_method === 'mpesa' ? `<p><strong>Phone:</strong> ${form.phone_number}</p>` : ''}
+                    <p><strong>Fee:</strong> KES ${formatCurrency(processingFee.value)}</p>
+                    <p><strong>Net Deposit:</strong> KES ${formatCurrency(netAmount.value)}</p>
+                </div>
+            </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, Deposit',
+        cancelButtonText: 'Cancel'
+    });
+
+    if (!result.isConfirmed) {
         return;
     }
 
     loading.value = true;
 
     try {
-        await router.post('/wallet/deposit', form, {
-            preserveScroll: true,
-            onSuccess: () => {
-                // Success handled by controller redirect
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        
+        if (!token) {
+            throw new Error('CSRF token not found');
+        }
+
+        const response = await fetch('/wallet/deposit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': token,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
             },
-            onError: (errors) => {
-                console.error('Deposit error:', errors);
-                alert('Failed to process deposit. Please check the form and try again.');
-                loading.value = false;
-            }
+            body: JSON.stringify(form)
         });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            if (response.status === 422 && data.errors) {
+                const errorMessages = Object.values(data.errors).flat().join('\n');
+                throw new Error(errorMessages);
+            }
+            throw new Error(data.message || 'Deposit failed');
+        }
+
+        if (data && data.success) {
+            if (data.redirect) {
+                await Swal.fire({
+                    icon: 'info',
+                    title: 'M-Pesa Prompt Sent',
+                    html: `
+                        <div class="text-center">
+                            <p class="mb-2">${data.message || 'Please check your phone and enter your M-Pesa PIN to complete the deposit.'}</p>
+                            <p class="text-sm text-gray-600">Transaction ID: ${data.transaction_id}</p>
+                        </div>
+                    `,
+                    showConfirmButton: true,
+                    confirmButtonColor: '#10b981',
+                    confirmButtonText: 'OK, I\'ve entered PIN'
+                });
+                
+                if (data.transaction_id) {
+                    await checkTransactionStatus(data.transaction_id);
+                } else {
+                    window.location.href = data.redirect;
+                }
+            } else {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: data.message || 'Deposit successful!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                
+                setTimeout(() => {
+                    window.location.href = '/wallet';
+                }, 2000);
+            }
+        } else {
+            throw new Error('Invalid response from server');
+        }
     } catch (error) {
         console.error('Deposit error:', error);
-        alert('An unexpected error occurred. Please try again.');
+        
+        await Swal.fire({
+            icon: 'error',
+            title: 'Deposit Failed',
+            text: error.message || 'Failed to process deposit. Please try again.',
+            confirmButtonColor: '#ef4444'
+        });
+    } finally {
         loading.value = false;
     }
 };
+
+onMounted(() => {
+    const token = document.querySelector('meta[name="csrf-token"]');
+    if (!token) {
+        console.error('CSRF token meta tag not found!');
+    }
+});
 </script>
