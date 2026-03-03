@@ -170,14 +170,18 @@ class WalletController extends Controller
 
                           if($amount=="1000"){
                             $cashback=2500;
+                            $package_name="Lite Package";
                           }else if($amount=="2400"){
                             $cashback=5000;
+                            $package_name="Pro Package";
                           }else if($amount=="4800"){
                             $cashback=10000;
+                            $package_name="Bariplus Package";
                           }else{
-                            $cashback=1000;      
+                            $cashback=0;      
                           }
                           $user->increment('agent_bonus', $cashback);
+                          $user->update('package', $package_name);
                             
                         $transaction->update([
                                 'status' => 'completed',
