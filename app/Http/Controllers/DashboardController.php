@@ -124,7 +124,7 @@ $recentReviews = [
                 'agent_salary' => $user->agent_salary,
             ],
             'balances' => [
-                'whatsapp_balance' => $user->deposit_balance * 0.6, // Example calculation
+                'whatsapp_balance' => $user->whatsapp_balance, // Example calculation
                 'whatsapp_withdrawn' => $totalWithdrawn,
                 'deposit_balance' => $user->deposit_balance,
                 'cashback_bonus' => $user->agent_bonus,
