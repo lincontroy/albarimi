@@ -274,7 +274,7 @@ const props = defineProps({
     },
     min_deposit: {
         type: Number,
-        default: 100
+        default: 1
     },
     max_deposit: {
         type: Number,
