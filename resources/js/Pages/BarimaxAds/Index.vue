@@ -1,12 +1,12 @@
 <!-- resources/js/Pages/BarimaxAds/Index.vue -->
 <template>
-    <DashboardLayout title="AI Discounts">
+    <DashboardLayout title="Product Of The Day">
         <!-- Simple Header -->
         <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4">
             <div class="max-w-7xl mx-auto flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                     <Sparkles :size="20" />
-                    <span class="font-semibold">AI Discounts</span>
+                    <span class="font-semibold">Product Of The Day</span>
                 </div>
                 <span class="text-sm opacity-90">{{ adStats.active_ads }} active offers</span>
             </div>
@@ -70,93 +70,9 @@
                 </div>
             </div>
 
-            <!-- Featured Ad -->
-            <div v-if="featuredAd" class="mb-8">
-                <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl shadow-lg overflow-hidden">
-                    <div class="p-6 text-white">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="text-xs font-semibold uppercase tracking-wide bg-white/20 px-3 py-1 rounded-full">
-                                Featured Offer
-                            </span>
-                            <span class="text-sm">{{ featuredAd.days_remaining }} days left</span>
-                        </div>
-                        
-                        <div class="text-4xl font-bold mb-2">
-                            {{ featuredAd.discount_percentage }}% OFF
-                        </div>
-                        
-                        <p class="text-lg mb-4">{{ featuredAd.caption }}</p>
-                        
-                        <div class="bg-black/20 rounded-lg p-4 mb-4">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <span class="text-sm opacity-90">Discount Code</span>
-                                    <div class="text-xl font-mono font-bold">{{ featuredAd.discount_code }}</div>
-                                </div>
-                                <button 
-                                    @click="copyToClipboard(featuredAd.discount_code)"
-                                    class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
-                                >
-                                    <Copy :size="16" />
-                                    <span>Copy</span>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <button
-                            @click="claimDiscount(featuredAd.id)"
-                            :disabled="claiming"
-                            class="w-full bg-white text-purple-600 hover:bg-gray-100 disabled:bg-gray-300 disabled:cursor-not-allowed font-semibold py-3 rounded-lg transition-colors flex items-center justify-center space-x-2"
-                        >
-                            <Loader2 v-if="claiming" :size="18" class="animate-spin" />
-                            <template v-else>
-                                <Gift :size="18" />
-                                <span>Claim Discount</span>
-                            </template>
-                        </button>
-                    </div>
-                </div>
-            </div>
+     
 
-            <!-- Active Offers Grid -->
-            <div v-if="activeAds.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div 
-                    v-for="ad in activeAds" 
-                    :key="ad.id"
-                    class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                >
-                    <div class="p-5">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-xs font-semibold text-purple-600 uppercase tracking-wide">
-                                {{ ad.discount_percentage }}% OFF
-                            </span>
-                            <span class="text-xs text-gray-500">{{ ad.days_remaining }}d left</span>
-                        </div>
-                        
-                        <h3 class="font-semibold text-gray-900 mb-2">{{ ad.caption }}</h3>
-                        
-                        <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ ad.description }}</p>
-                        
-                        <div class="flex items-center justify-between">
-                            <code class="text-sm bg-gray-100 px-2 py-1 rounded">{{ ad.discount_code }}</code>
-                            <button
-                                @click="claimDiscount(ad.id)"
-                                class="text-purple-600 hover:text-purple-800 font-medium text-sm flex items-center space-x-1"
-                            >
-                                <Gift :size="14" />
-                                <span>Claim</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Empty State -->
-            <div v-else class="text-center py-12">
-                <Gift :size="48" class="mx-auto text-gray-400 mb-4" />
-                <h3 class="text-lg font-medium text-gray-900 mb-2">No Active Offers</h3>
-                <p class="text-gray-600">Check back at midnight for new AI-generated discounts!</p>
-            </div>
+            
         </div>
     </DashboardLayout>
 </template>
