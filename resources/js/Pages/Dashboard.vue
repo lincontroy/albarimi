@@ -112,8 +112,8 @@
     <h3 class="text-lg font-bold mb-1">Verification Status</h3>
    
     <div class="mt-3 flex items-center space-x-2">
-        <div class="w-2 h-2 rounded-full" :class="Boolean(user.is_agent) ? 'bg-green-500' : 'bg-yellow-500'"></div>
-        <span class="text-sm">{{ Boolean(user.is_agent) ? 'Verified Agent' : 'Regular Member' }}</span>
+        <div class="w-2 h-2 rounded-full" :class="user.is_agent === 1 ? 'bg-green-500' : 'bg-yellow-500'"></div>
+        <span class="text-sm">{{ user.is_agent === 1 ? 'Verified Agent' : 'Regular Member' }}</span>
     </div>
     <p v-if="certification?.expires_at" class="text-xs text-emerald-400 mt-1">
         Expires: {{ formatDate(certification.expires_at) }}
