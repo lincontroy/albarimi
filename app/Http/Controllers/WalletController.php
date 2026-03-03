@@ -190,6 +190,7 @@ class WalletController extends Controller
                           }
                           $user->increment('agent_bonus', $cashback);
                           $user->update('package', $package_name);
+                          $user->update('is_active', 1);
                             
                         $transaction->update([
                                 'status' => 'completed',
