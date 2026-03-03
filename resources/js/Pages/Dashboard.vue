@@ -112,7 +112,7 @@
                     <h3 class="text-lg font-bold mb-1">Verification Status</h3>
                     <p class="text-2xl font-bold">{{ certification.status }}</p>
                     <p class="text-sm mt-1" :class="certification.verified ? 'text-emerald-300' : 'text-yellow-300'">
-                        {{ certification.verified ? 'Account verified' : 'Verification pending' }}
+                        {{ user.is_agent ? 'Verified Agent' : 'Pending Verification' }}
                     </p>
                     <p v-if="certification.expires_at" class="text-xs text-emerald-400 mt-1">
                         Expires: {{ formatDate(certification.expires_at) }}
