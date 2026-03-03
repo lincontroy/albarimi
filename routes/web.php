@@ -35,10 +35,12 @@ Route::get('/', function () {
     return redirect('/dashboard'); // Simple redirect
 });
 
-Route::get('/wallet/transaction/check-status/{transaction}', [WalletController::class, 'checkTransactionStatus'])
-    ->name('wallet.transaction.check-status');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+
+
+Route::get('/wallet/transaction/check-status/{transaction}', [WalletController::class, 'checkTransactionStatus'])
+->name('wallet.transaction.check-status');
 
     // M-Pesa routes
 Route::get('/wallet/deposit/status/{transaction}', [WalletController::class, 'depositStatusPage'])->name('wallet.deposit.status');
