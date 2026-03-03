@@ -36,6 +36,8 @@ class TeamController extends Controller
                 ];
             });
 
+            dd($referrals);
+
         // Get referral stats
         $stats = [
             'total_referrals' => $user->referral_count,
