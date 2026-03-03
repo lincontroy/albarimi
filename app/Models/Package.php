@@ -50,22 +50,6 @@ class Package extends Model
     public static function getPackageDetails($type)
     {
         $packages = [
-            'entry' => [
-                'name' => 'Entry Package',
-                'amount' => 800,
-                'duration_days' => 30,
-                'daily_earnings' => 50,
-                'monthly_earnings' => 1500,
-                'features' => [
-                    'Basic task access',
-                    'Up to 5 tasks daily',
-                    'Email support',
-                    'Progress tracking',
-                    'Mobile app access',
-                    'Basic analytics',
-                ],
-                'description' => 'Perfect for beginners starting their online earning journey',
-            ],
             'lite' => [
                 'name' => 'Lite Package',
                 'amount' => 1000,

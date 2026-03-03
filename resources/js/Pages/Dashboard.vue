@@ -10,49 +10,7 @@
         
         <!-- Dashboard Content -->
         <div class="p-4 lg:p-8">
-            <!-- Stats Overview -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div class="bg-gradient-to-br from-purple-600/40 to-pink-600/40 backdrop-blur-xl border border-purple-500/30 text-white rounded-2xl p-4 shadow-2xl shadow-purple-500/20">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-purple-200">Total Earnings</p>
-                            <p class="text-2xl font-bold">KES {{ totalEarnings.toLocaleString() }}</p>
-                        </div>
-                        <TrendingUp :size="24" class="text-purple-300" />
-                    </div>
-                </div>
-                
-                <div class="bg-gradient-to-br from-emerald-600/40 to-teal-600/40 backdrop-blur-xl border border-emerald-500/30 text-white rounded-2xl p-4 shadow-2xl shadow-emerald-500/20">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-emerald-200">Active Referrals</p>
-                            <p class="text-2xl font-bold">{{ stats.active_referrals }}</p>
-                        </div>
-                        <Users :size="24" class="text-emerald-300" />
-                    </div>
-                </div>
-                
-                <div class="bg-gradient-to-br from-cyan-600/40 to-blue-600/40 backdrop-blur-xl border border-cyan-500/30 text-white rounded-2xl p-4 shadow-2xl shadow-cyan-500/20">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-cyan-200">Job Applications</p>
-                            <p class="text-2xl font-bold">{{ stats.job_applications }}</p>
-                        </div>
-                        <Briefcase :size="24" class="text-cyan-300" />
-                    </div>
-                </div>
-                
-                <div class="bg-gradient-to-br from-amber-600/40 to-orange-600/40 backdrop-blur-xl border border-amber-500/30 text-white rounded-2xl p-4 shadow-2xl shadow-amber-500/20">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-amber-200">Endorsements</p>
-                            <p class="text-2xl font-bold">{{ stats.active_endorsements }}</p>
-                        </div>
-                        <Award :size="24" class="text-amber-300" />
-                    </div>
-                </div>
-            </div>
-            
+    
             <!-- Main Dashboard Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Welcome Card -->
@@ -119,6 +77,13 @@
                     <p class="text-4xl font-bold">KES. {{ balances.whatsapp_balance.toLocaleString() }}</p>
                     <p class="text-xs text-cyan-300 mt-1">Available for withdrawal</p>
                 </div>
+
+                <div class="bg-gradient-to-br from-amber-600/40 to-orange-600/40 backdrop-blur-xl border border-amber-500/30 text-white rounded-2xl p-3 shadow-2xl shadow-amber-500/20">
+                    <h3 class="text-lg font-bold mb-1">Total Whatsapp Withdrawals</h3>
+                    <p class="text-4xl font-bold">KES. {{ balances.cashback_bonus.toLocaleString() }}</p>
+                    <p class="text-xs text-amber-300 mt-1">Available for use</p>
+                </div>
+
 
                 <div class="bg-gradient-to-br from-violet-600/40 to-fuchsia-600/40 backdrop-blur-xl border border-violet-500/30 text-white rounded-2xl p-3 shadow-2xl shadow-violet-500/20">
                     <h3 class="text-lg font-bold mb-1">Deposit Balance</h3>
@@ -202,40 +167,7 @@
                 </div>
 
                 <!-- Referral Stats -->
-                <div class="bg-gradient-to-br from-fuchsia-600/40 to-purple-600/40 backdrop-blur-xl border border-fuchsia-500/30 text-white rounded-2xl p-3 shadow-2xl shadow-fuchsia-500/20">
-                    <h3 class="text-lg font-bold mb-2">Referral Stats</h3>
-                    <div class="space-y-1.5">
-                        <div class="flex justify-between items-center">
-                            <span class="text-fuchsia-200">Total Referrals:</span>
-                            <span class="text-fuchsia-300">{{ stats.total_referrals }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-fuchsia-200">Active Referrals:</span>
-                            <span class="text-green-400">{{ stats.active_referrals }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-fuchsia-200">Inactive Referrals:</span>
-                            <span class="text-red-400">{{ stats.total_referrals - stats.active_referrals }}</span>
-                        </div>
-                        <div class="mt-3">
-                            <p class="text-sm text-fuchsia-300">Your Referral Link:</p>
-                            <div class="flex items-center space-x-2 mt-1">
-                                <input 
-                                    type="text" 
-                                    :value="referralLink"
-                                    readonly
-                                    class="flex-1 bg-fuchsia-500/20 border border-fuchsia-500/30 rounded-lg px-3 py-1 text-sm text-fuchsia-300"
-                                />
-                                <button 
-                                    @click="copyReferralLink"
-                                    class="bg-fuchsia-500 hover:bg-fuchsia-600 px-3 py-1 rounded-lg text-sm transition-colors"
-                                >
-                                    Copy
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          
             </div>
         </div>
     </DashboardLayout>

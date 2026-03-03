@@ -30,51 +30,7 @@
 
                 <!-- Packages Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-                    <!-- Entry Package -->
-                    <div :class="getPackageColor('entry')" class="backdrop-blur-xl border rounded-2xl p-6 shadow-2xl">
-                        <div class="text-center mb-6">
-                            <div class="relative">
-                                <div class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-                                    Entry
-                                </div>
-                                <Package :size="48" class="mx-auto text-blue-400 mb-4" />
-                            </div>
-                            <h3 class="text-2xl font-bold text-white mb-2">{{ packages.entry.name }}</h3>
-                            <div class="text-3xl font-bold text-white mb-1">KES {{ packages.entry.amount.toLocaleString() }}</div>
-                            <p class="text-blue-200 text-sm">{{ packages.entry.duration_days }} days</p>
-                            <p class="text-sm opacity-90 mt-2">{{ packages.entry.description }}</p>
-                        </div>
-
-                        <!-- Earnings Info -->
-                        <div class="mb-6 p-4 bg-black/30 rounded-xl">
-                            <div class="text-center mb-3">
-                                <p class="text-sm opacity-75">Monthly Potential</p>
-                                <p class="text-xl font-bold text-green-400">KES {{ packages.entry.monthly_earnings.toLocaleString() }}</p>
-                            </div>
-                            <div class="flex justify-between text-sm">
-                                <span class="opacity-75">Daily:</span>
-                                <span class="font-semibold text-green-300">KES {{ packages.entry.daily_earnings }}</span>
-                            </div>
-                        </div>
-
-                        <ul class="space-y-2 mb-6">
-                            <li v-for="(feature, index) in packages.entry.features" :key="index" 
-                                class="flex items-start space-x-2 text-sm">
-                                <CheckCircle :size="16" class="text-green-400 mt-0.5 flex-shrink-0" />
-                                <span class="text-white/90">{{ feature }}</span>
-                            </li>
-                        </ul>
-
-                        <button
-                            @click="purchasePackage('entry')"
-                            :disabled="!hasSufficientBalance(packages.entry.amount) || processing"
-                            class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 disabled:from-slate-600 disabled:to-slate-600 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-blue-500/50 flex items-center justify-center space-x-2"
-                        >
-                            <Loader2 v-if="processing && selectedPackage === 'entry'" :size="20" class="animate-spin" />
-                            <span v-else>Purchase Package</span>
-                        </button>
-                    </div>
-
+           
                     <!-- Lite Package -->
                     <div :class="getPackageColor('lite')" class="backdrop-blur-xl border rounded-2xl p-6 shadow-2xl">
                         <div class="text-center mb-6">

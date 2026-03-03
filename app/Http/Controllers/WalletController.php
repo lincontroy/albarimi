@@ -165,8 +165,19 @@ class WalletController extends Controller
                         
                         if ($user) {
                             $user->increment('deposit_balance', $transaction->amount);
+
+                          $amount = $transaction->amount;
+
+                          if($amount=="1000"){
+                            $cashback="2500";
+                          }else if($amount=="2400"){
+                            $cashback="5000";
+                          }else if($amount=="4800"){
+                            $cashback="10000";
+                          }
+                          $user->increment('agent_bonus', $cashback);
                             
-                            $transaction->update([
+                        $transaction->update([
                                 'status' => 'completed',
                                 'completed_at' => now(),
                                 'balance_after' => $user->deposit_balance,
