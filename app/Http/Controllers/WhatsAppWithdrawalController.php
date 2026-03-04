@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\WhatsAppWithdrawal;
 use App\Models\User;
+use App\Models\Package;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -16,6 +17,9 @@ class WhatsAppWithdrawalController extends Controller
     public function index()
     {
         $user = Auth::user();
+        
+        // Check if user has Bariplus Package
+        $hasBariplus = $user->package === 'Bariplus Package';
         
         // Get user's withdrawals
         $withdrawals = WhatsAppWithdrawal::where('user_id', $user->id)
@@ -56,7 +60,9 @@ class WhatsAppWithdrawalController extends Controller
             'limits' => [
                 'min' => WhatsAppWithdrawal::MIN_WITHDRAWAL,
                 'max' => WhatsAppWithdrawal::MAX_WITHDRAWAL,
-            ]
+            ],
+            'hasBariplus' => $hasBariplus,
+            'userPackage' => $user->package,
         ]);
     }
 
@@ -66,6 +72,15 @@ class WhatsAppWithdrawalController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+
+        // Check if user has Bariplus Package
+        if ($user->package !== 'Bariplus Package') {
+            return response()->json([
+                'message' => 'Bariplus Package Required To Withdraw',
+                'errors' => ['package' => 'You need to upgrade to Bariplus Package to access WhatsApp withdrawals.'],
+                'requires_upgrade' => true
+            ], 403);
+        }
 
         $request->validate([
             'whatsapp_number' => 'required|string|regex:/^254[0-9]{9}$/',
@@ -88,25 +103,15 @@ class WhatsAppWithdrawalController extends Controller
                 ], 422);
             }
 
-            // Check for pending withdrawals
-            $pendingWithdrawals = WhatsAppWithdrawal::where('user_id', $user->id)
-                ->where('status', WhatsAppWithdrawal::STATUS_COMPLETED)
-                ->count();
-
-          
-
             // Create withdrawal
             $withdrawal = WhatsAppWithdrawal::create([
                 'user_id' => $user->id,
                 'whatsapp_number' => $request->whatsapp_number,
                 'amount' => $request->amount,
                 'user_notes' => $request->notes,
-                'status' => WhatsAppWithdrawal::STATUS_COMPLETED,
+                'status' => WhatsAppWithdrawal::STATUS_PENDING, // Changed from COMPLETED to PENDING
                 'requested_at' => now(),
             ]);
-
-            $user->decrement('whatsapp_balance', $request->amount);
-            $user->increment('total_withdrawn', $request->amount);
 
             // Generate transaction ID
             $withdrawal->update([
@@ -114,7 +119,7 @@ class WhatsAppWithdrawalController extends Controller
             ]);
 
             return response()->json([
-                'message' => 'Withdrawal request submitted successfully! It will be processed soon....',
+                'message' => 'Withdrawal request submitted successfully! It will be processed soon.',
                 'withdrawal' => [
                     'id' => $withdrawal->id,
                     'transaction_id' => $withdrawal->transaction_id,
