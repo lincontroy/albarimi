@@ -61,11 +61,11 @@ class PackageController extends Controller
         $request->validate([
             'package_type' => 'required|in:' . implode(',', Package::getAllPackages()),
         ]);
-
+    
         $user = Auth::user();
         $packageType = $request->package_type;
         $packageDetails = Package::getPackageDetails($packageType);
-
+    
         if (!$packageDetails) {
             return back()->with([
                 'flash' => [
@@ -73,7 +73,7 @@ class PackageController extends Controller
                 ]
             ]);
         }
-
+    
         // Check user balance
         if ($user->deposit_balance < $packageDetails['amount']) {
             return back()->with([
@@ -82,56 +82,52 @@ class PackageController extends Controller
                 ]
             ]);
         }
-
+    
         try {
             DB::transaction(function () use ($user, $packageType, $packageDetails) {
                 // Deduct amount from user balance
                 $user->decrement('deposit_balance', $packageDetails['amount']);
-
-                $commissionAmount = $packageDetails['amount'] * 0.85; // 80% commission
-
-                // Distribute commission to upline and send email
+    
+                $commissionAmount = $packageDetails['amount'] * 0.85; // 85% commission (not 80% as comment says)
+    
+                // Determine package name based on amount
+                $packageName = '';
+                $cashback = 0;
+                
+                switch($packageDetails['amount']) {
+                    case 1000:
+                        $cashback = 2500;
+                        $packageName = "Lite Package";
+                        break;
+                    case 2400:
+                        $cashback = 5000;
+                        $packageName = "Pro Package";
+                        break;
+                    case 4800:
+                        $cashback = 10000;
+                        $packageName = "Bariplus Package";
+                        break;
+                    default:
+                        $cashback = 0;
+                        $packageName = $packageDetails['name'] ?? 'Unknown Package';
+                }
+    
+                // Update user's package and active status
+                $user->update([
+                    'package' => $packageName,
+                    'is_active' => 1
+                ]);
+    
+                // Distribute commission to upline
                 $uplineId = $user->referred_by;
                 $upline = null;
+                
                 if ($uplineId) {
                     $upline = User::find($uplineId);
                     if ($upline) {
                         $upline->increment('deposit_balance', $commissionAmount);
                         $upline->increment('total_earned_from_referrals', $commissionAmount);
-
-                        $amount = $packageDetails['amount'];
-
-                        // dd($amount);
-
-                        // $user=Auth::user();
-
-                        $package_name="";
-
-
-                        if($amount==1000){
-                            $cashback=2500;
-                            $package_name="Lite Package";
-                          }else if($amount==2400){
-                            $cashback=5000;
-                            $package_name="Pro Package";
-                          }else if($amount==4800){
-                            $cashback=10000;
-                            $package_name="Bariplus Package";
-                          }else{
-                            $cashback=0;      
-                          }
-
-                        //   dd($package_name);
-                        
-
-                        if($user->update([
-                            'package' => $package_name
-                        ])){
-                          
-                        };
-                        $user->update([
-                            'is_active' => 1
-                        ]);
+    
                         // Send bonus email to upline
                         try {
                             Mail::to($upline->email)->send(new UplineBonusEmail(
@@ -139,21 +135,21 @@ class PackageController extends Controller
                                 $user,
                                 $commissionAmount,
                                 $packageDetails['amount'],
-                                $packageDetails['name']
+                                $packageName // Use $packageName instead of $packageDetails['name']
                             ));
                         } catch (\Exception $e) {
                             \Log::error('Failed to send upline bonus email: ' . $e->getMessage());
                         }
                     }
                 }
-
+    
                 // Check if user has active package of same type
                 $existingPackage = Package::where('user_id', $user->id)
                     ->where('package_type', $packageType)
                     ->where('status', 'active')
                     ->where('expires_at', '>', now())
                     ->first();
-
+    
                 if ($existingPackage) {
                     // Extend existing package
                     $existingPackage->update([
@@ -167,12 +163,12 @@ class PackageController extends Controller
                     $package = Package::create([
                         'user_id' => $user->id,
                         'package_type' => $packageType,
-                        'package_name' => $packageDetails['name'],
+                        'package_name' => $packageName, // Use $packageName instead of $packageDetails['name']
                         'amount' => $packageDetails['amount'],
                         'status' => 'active',
                         'activated_at' => now(),
                         'expires_at' => now()->addDays($packageDetails['duration_days']),
-                        'features' => $packageDetails['features'],
+                        'features' => $packageDetails['features'] ?? null,
                         'notes' => 'Package purchased successfully',
                     ]);
                 }
@@ -190,13 +186,13 @@ class PackageController extends Controller
                     \Log::error('Failed to send package purchase email: ' . $e->getMessage());
                 }
             });
-
+    
             return back()->with([
                 'flash' => [
                     'success' => 'Package purchased successfully! Your ' . $packageDetails['name'] . ' is now active. Check your email for details.'
                 ]
             ]);
-
+    
         } catch (\Exception $e) {
             \Log::error('Package purchase failed: ' . $e->getMessage());
             return back()->with([
