@@ -19,16 +19,14 @@
                                 <h3 class="text-lg font-bold text-white mb-1">Your Balance</h3>
                                 <p class="text-2xl font-bold text-green-400">KES {{ userBalance.toLocaleString() }}</p>
                             </div>
-                            
                         </div>
                     </div>
                 </div>
 
                 <!-- Packages Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-           
                     <!-- Lite Package -->
-                    <div :class="getPackageColor('lite')" class="backdrop-blur-xl border rounded-2xl p-6 shadow-2xl">
+                    <div :class="getPackageColor('lite')" class="backdrop-blur-xl border rounded-2xl p-6 shadow-2xl relative">
                         <div class="text-center mb-6">
                             <div class="relative">
                                 <div class="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
@@ -73,7 +71,7 @@
                     </div>
 
                     <!-- Pro Package -->
-                    <div :class="getPackageColor('pro')" class="backdrop-blur-xl border rounded-2xl p-6 shadow-2xl">
+                    <div :class="getPackageColor('pro')" class="backdrop-blur-xl border rounded-2xl p-6 shadow-2xl relative">
                         <div class="text-center mb-6">
                             <div class="relative">
                                 <div class="absolute -top-2 -right-2 bg-purple-500 text-white text-xs px-2 py-1 rounded-full">
@@ -118,7 +116,7 @@
                     </div>
 
                     <!-- BariPlus Package -->
-                    <div :class="getPackageColor('bariplus')" class="backdrop-blur-xl border rounded-2xl p-6 shadow-2xl">
+                    <div :class="getPackageColor('bariplus')" class="backdrop-blur-xl border rounded-2xl p-6 shadow-2xl relative">
                         <div class="text-center mb-6">
                             <div class="relative">
                                 <div class="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
@@ -296,6 +294,7 @@
 import { ref, computed } from 'vue';
 import { router, Link } from '@inertiajs/vue3';
 import DashboardLayout from '@/Layouts/DashboardLayout.vue';
+import { useToast } from 'vue-toastification';
 import {
     Package, Crown, CheckCircle, Loader2,
     RefreshCw, Eye, History, LayoutDashboard
@@ -307,6 +306,7 @@ const props = defineProps({
     userBalance: Number,
 });
 
+const toast = useToast();
 const processing = ref(false);
 const selectedPackage = ref(null);
 
@@ -350,15 +350,42 @@ const getPackageIcon = (type) => {
 
 const purchasePackage = async (packageType) => {
     const packageData = props.packages[packageType];
+    
     if (!hasSufficientBalance(packageData.amount)) {
-        alert(`Insufficient balance. You need KES ${packageData.amount.toLocaleString()}`);
+        toast.error(`Insufficient balance. You need KES ${packageData.amount.toLocaleString()}`, {
+            timeout: 5000,
+            position: 'top-right',
+            icon: '💰'
+        });
         return;
     }
 
-    if (!confirm(`Are you sure you want to purchase ${packageData.name} for KES ${packageData.amount.toLocaleString()}?`)) {
-        return;
-    }
+    // Show confirmation toast
+    toast.info(`Confirm purchase of ${packageData.name} for KES ${packageData.amount.toLocaleString()}?`, {
+        timeout: 10000,
+        position: 'top-right',
+        icon: '🛒',
+        closeOnClick: false,
+        closeButton: true,
+        actions: [
+            {
+                text: 'Confirm',
+                onClick: (_, toastObject) => {
+                    toastObject.close();
+                    executePurchase(packageType, packageData);
+                }
+            },
+            {
+                text: 'Cancel',
+                onClick: (_, toastObject) => {
+                    toastObject.close();
+                }
+            }
+        ]
+    });
+};
 
+const executePurchase = async (packageType, packageData) => {
     selectedPackage.value = packageType;
     processing.value = true;
 
@@ -368,22 +395,41 @@ const purchasePackage = async (packageType) => {
         }, {
             preserveScroll: true,
             onSuccess: (page) => {
-                const flash = page?.props?.flash || {};
-                if (flash.success) {
-                    alert(flash.success);
-                    router.reload();
-                } else if (flash.error) {
-                    alert(flash.error);
-                }
+                toast.success(`✅ Package purchased successfully! Your ${packageData.name} is now active.`, {
+                    timeout: 5000,
+                    position: 'top-right',
+                    icon: '🎉'
+                });
+                router.reload();
             },
             onError: (errors) => {
                 console.error('Error purchasing package:', errors);
-                alert('Failed to purchase package. Please try again.');
+                
+                // Handle different error types
+                if (errors.balance) {
+                    toast.error(errors.balance, {
+                        timeout: 5000,
+                        position: 'top-right'
+                    });
+                } else if (errors.package_type) {
+                    toast.error(errors.package_type, {
+                        timeout: 5000,
+                        position: 'top-right'
+                    });
+                } else {
+                    toast.error('Failed to purchase package. Please try again.', {
+                        timeout: 5000,
+                        position: 'top-right'
+                    });
+                }
             }
         });
     } catch (error) {
         console.error('Error purchasing package:', error);
-        alert('An unexpected error occurred.');
+        toast.error('An unexpected error occurred.', {
+            timeout: 5000,
+            position: 'top-right'
+        });
     } finally {
         processing.value = false;
         selectedPackage.value = null;
@@ -394,28 +440,65 @@ const renewPackage = async (id) => {
     const packageItem = props.activePackages.find(p => p.id === id);
     if (!packageItem) return;
 
-    if (!confirm(`Are you sure you want to renew ${packageItem.package_name} for KES ${packageItem.amount.toLocaleString()}?`)) {
-        return;
-    }
+    // Show confirmation toast
+    toast.info(`Confirm renewal of ${packageItem.package_name} for KES ${packageItem.amount.toLocaleString()}?`, {
+        timeout: 10000,
+        position: 'top-right',
+        icon: '🔄',
+        closeOnClick: false,
+        closeButton: true,
+        actions: [
+            {
+                text: 'Confirm',
+                onClick: (_, toastObject) => {
+                    toastObject.close();
+                    executeRenewal(id, packageItem);
+                }
+            },
+            {
+                text: 'Cancel',
+                onClick: (_, toastObject) => {
+                    toastObject.close();
+                }
+            }
+        ]
+    });
+};
 
+const executeRenewal = async (id, packageItem) => {
     try {
         await router.post(`/packages/${id}/renew`, {}, {
             preserveScroll: true,
-            onSuccess: (page) => {
-                const flash = page?.props?.flash || {};
-                if (flash.success) {
-                    alert(flash.success);
-                    router.reload();
-                }
+            onSuccess: () => {
+                toast.success(`✅ Package renewed successfully!`, {
+                    timeout: 5000,
+                    position: 'top-right',
+                    icon: '🎉'
+                });
+                router.reload();
             },
             onError: (errors) => {
                 console.error('Error renewing package:', errors);
-                alert('Failed to renew package.');
+                
+                if (errors.balance) {
+                    toast.error(errors.balance, {
+                        timeout: 5000,
+                        position: 'top-right'
+                    });
+                } else {
+                    toast.error('Failed to renew package. Please try again.', {
+                        timeout: 5000,
+                        position: 'top-right'
+                    });
+                }
             }
         });
     } catch (error) {
         console.error('Error renewing package:', error);
-        alert('An unexpected error occurred.');
+        toast.error('An unexpected error occurred.', {
+            timeout: 5000,
+            position: 'top-right'
+        });
     }
 };
 </script>
