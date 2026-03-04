@@ -112,7 +112,7 @@
             </div>
             <div class="flex-1">
               <p class="font-semibold">{{ $page.props.auth.user.name }}</p>
-              <p class="text-xs text-purple-300">{{ $page.props.auth.user.email }}</p>
+            
             </div>
           </div>
           <!-- Logout Button -->
