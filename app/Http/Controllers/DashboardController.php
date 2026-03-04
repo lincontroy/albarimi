@@ -154,6 +154,11 @@ $recentReviews = [
                 ->where('type', 'withdrawal')
                 ->where('status', 'completed')
                 ->sum('amount'),
+                'total_whatsapp_withdrawals' => WhatsAppWithdrawal::where('user_id', $user->id)
+              
+                ->where('status', 'completed')
+              
+                ->sum('amount'),
                 'referrals' => $referralStats,
                 'total_referrals' => $referralStats['total'] ?? 0,
                 'active_referrals' => $referralStats['active'] ?? 0,

@@ -80,7 +80,7 @@
 
                 <div class="bg-gradient-to-br from-amber-600/40 to-orange-600/40 backdrop-blur-xl border border-amber-500/30 text-white rounded-2xl p-3 shadow-2xl shadow-amber-500/20">
                     <h3 class="text-lg font-bold mb-1">Total Whatsapp Withdrawals</h3>
-                    <p class="text-4xl font-bold">KES. {{ balances.cashback_bonus.toLocaleString() }}</p>
+                    <p class="text-4xl font-bold">KES. {{ stats.total_whatsapp_withdrawals.toLocaleString() }}</p>
                     <p class="text-xs text-amber-300 mt-1">Available for use</p>
                 </div>
 
