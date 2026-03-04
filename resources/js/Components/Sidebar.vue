@@ -99,15 +99,7 @@
         </div>
       </nav>
 
-      <!-- Bottom Buttons -->
-      <div class="p-4 border-t border-purple-500/30">
-        <button
-          class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 px-4 py-2 rounded-lg flex items-center justify-between transition-all duration-200 shadow-lg shadow-purple-500/50"
-        >
-          <span>Monetize</span>
-          <span class="bg-slate-900/50 px-3 py-1 rounded text-xs">Copy</span>
-        </button>
-      </div>
+     
 
       <!-- User Info with Logout -->
       <div class="p-4 border-t border-purple-500/30">
@@ -306,12 +298,7 @@ const menuItems = [
     hasDropdown: false, 
     link: '/whatsapp-linkage' 
   },
-  { 
-    icon: Star, 
-    label: 'Reviews', 
-    hasDropdown: false, 
-    link: '/reviews' 
-  },
+  
 ]
 </script>
 

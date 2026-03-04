@@ -320,7 +320,6 @@ const hasSufficientBalance = (amount) => {
 
 const getPackageColor = (type) => {
     const colors = {
-        'entry': 'bg-gradient-to-br from-blue-600/40 to-cyan-600/40 border-blue-500/30 shadow-blue-500/20',
         'lite': 'bg-gradient-to-br from-green-600/40 to-emerald-600/40 border-green-500/30 shadow-green-500/20',
         'pro': 'bg-gradient-to-br from-purple-600/40 to-pink-600/40 border-purple-500/30 shadow-purple-500/20',
         'bariplus': 'bg-gradient-to-br from-orange-600/40 to-yellow-600/40 border-orange-500/30 shadow-orange-500/20',
@@ -330,7 +329,6 @@ const getPackageColor = (type) => {
 
 const getIconColor = (type) => {
     const colors = {
-        'entry': 'text-blue-400',
         'lite': 'text-green-400',
         'pro': 'text-purple-400',
         'bariplus': 'text-orange-400',
@@ -340,7 +338,6 @@ const getIconColor = (type) => {
 
 const getPackageIcon = (type) => {
     const icons = {
-        'entry': Package,
         'lite': Package,
         'pro': Package,
         'bariplus': Crown,
@@ -352,40 +349,13 @@ const purchasePackage = async (packageType) => {
     const packageData = props.packages[packageType];
     
     if (!hasSufficientBalance(packageData.amount)) {
-        toast.error(`Insufficient balance. You need KES ${packageData.amount.toLocaleString()}`, {
+        toast.error(`Insufficient balance. You need KES ${packageData.amount.toLocaleString()} to purchase this package.`, {
             timeout: 5000,
-            position: 'top-right',
-            icon: '💰'
+            position: 'top-right'
         });
         return;
     }
 
-    // Show confirmation toast
-    toast.info(`Confirm purchase of ${packageData.name} for KES ${packageData.amount.toLocaleString()}?`, {
-        timeout: 10000,
-        position: 'top-right',
-        icon: '🛒',
-        closeOnClick: false,
-        closeButton: true,
-        actions: [
-            {
-                text: 'Confirm',
-                onClick: (_, toastObject) => {
-                    toastObject.close();
-                    executePurchase(packageType, packageData);
-                }
-            },
-            {
-                text: 'Cancel',
-                onClick: (_, toastObject) => {
-                    toastObject.close();
-                }
-            }
-        ]
-    });
-};
-
-const executePurchase = async (packageType, packageData) => {
     selectedPackage.value = packageType;
     processing.value = true;
 
@@ -395,11 +365,21 @@ const executePurchase = async (packageType, packageData) => {
         }, {
             preserveScroll: true,
             onSuccess: (page) => {
-                toast.success(`✅ Package purchased successfully! Your ${packageData.name} is now active.`, {
-                    timeout: 5000,
-                    position: 'top-right',
-                    icon: '🎉'
-                });
+                const flash = page.props.flash || {};
+                
+                if (flash.success) {
+                    toast.success(flash.success, {
+                        timeout: 5000,
+                        position: 'top-right',
+                        icon: '🎉'
+                    });
+                } else if (flash.error) {
+                    toast.error(flash.error, {
+                        timeout: 5000,
+                        position: 'top-right'
+                    });
+                }
+                
                 router.reload();
             },
             onError: (errors) => {
@@ -426,7 +406,7 @@ const executePurchase = async (packageType, packageData) => {
         });
     } catch (error) {
         console.error('Error purchasing package:', error);
-        toast.error('An unexpected error occurred.', {
+        toast.error('An unexpected error occurred. Please try again.', {
             timeout: 5000,
             position: 'top-right'
         });
@@ -440,41 +420,25 @@ const renewPackage = async (id) => {
     const packageItem = props.activePackages.find(p => p.id === id);
     if (!packageItem) return;
 
-    // Show confirmation toast
-    toast.info(`Confirm renewal of ${packageItem.package_name} for KES ${packageItem.amount.toLocaleString()}?`, {
-        timeout: 10000,
-        position: 'top-right',
-        icon: '🔄',
-        closeOnClick: false,
-        closeButton: true,
-        actions: [
-            {
-                text: 'Confirm',
-                onClick: (_, toastObject) => {
-                    toastObject.close();
-                    executeRenewal(id, packageItem);
-                }
-            },
-            {
-                text: 'Cancel',
-                onClick: (_, toastObject) => {
-                    toastObject.close();
-                }
-            }
-        ]
-    });
-};
-
-const executeRenewal = async (id, packageItem) => {
     try {
         await router.post(`/packages/${id}/renew`, {}, {
             preserveScroll: true,
-            onSuccess: () => {
-                toast.success(`✅ Package renewed successfully!`, {
-                    timeout: 5000,
-                    position: 'top-right',
-                    icon: '🎉'
-                });
+            onSuccess: (page) => {
+                const flash = page.props.flash || {};
+                
+                if (flash.success) {
+                    toast.success(flash.success, {
+                        timeout: 5000,
+                        position: 'top-right',
+                        icon: '🎉'
+                    });
+                } else if (flash.error) {
+                    toast.error(flash.error, {
+                        timeout: 5000,
+                        position: 'top-right'
+                    });
+                }
+                
                 router.reload();
             },
             onError: (errors) => {
@@ -495,7 +459,7 @@ const executeRenewal = async (id, packageItem) => {
         });
     } catch (error) {
         console.error('Error renewing package:', error);
-        toast.error('An unexpected error occurred.', {
+        toast.error('An unexpected error occurred. Please try again.', {
             timeout: 5000,
             position: 'top-right'
         });

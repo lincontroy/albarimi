@@ -76,7 +76,7 @@ class WhatsAppWithdrawalController extends Controller
         // Check if user has Bariplus Package
         if ($user->package !== 'Bariplus Package') {
             return response()->json([
-                'message' => 'Bariplus Package Required To Withdraw',
+                'message' => 'Please upgrade to Bariplus Package to access WhatsApp withdrawals.',
                 'errors' => ['package' => 'You need to upgrade to Bariplus Package to access WhatsApp withdrawals.'],
                 'requires_upgrade' => true
             ], 403);
@@ -118,8 +118,11 @@ class WhatsAppWithdrawalController extends Controller
                 'transaction_id' => $withdrawal->generateTransactionId()
             ]);
 
+            $message = "Dear {$user->name} you have successfuly withdrawn KES " . number_format($withdrawal->amount) . ". The amount will be credited to your account.";
+            // $this->notifyAdmin($message);
+
             return response()->json([
-                'message' => 'Withdrawal request submitted successfully! It will be processed soon.',
+                'message' => $message,
                 'withdrawal' => [
                     'id' => $withdrawal->id,
                     'transaction_id' => $withdrawal->transaction_id,

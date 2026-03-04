@@ -61,33 +61,35 @@ class PackageController extends Controller
         $request->validate([
             'package_type' => 'required|in:' . implode(',', Package::getAllPackages()),
         ]);
-    
+
         $user = Auth::user();
         $packageType = $request->package_type;
         $packageDetails = Package::getPackageDetails($packageType);
-    
+
         if (!$packageDetails) {
-            return response()->json([
-                'message' => 'Invalid package selected.',
-                'errors' => ['package_type' => 'The selected package is invalid.']
-            ], 422);
+            return redirect()->back()->with([
+                'flash' => [
+                    'error' => 'Invalid package selected.'
+                ]
+            ]);
         }
-    
+
         // Check user balance
         if ($user->deposit_balance < $packageDetails['amount']) {
-            return response()->json([
-                'message' => 'Insufficient balance.',
-                'errors' => ['balance' => 'You need KES ' . number_format($packageDetails['amount']) . ' to purchase this package.']
-            ], 422);
+            return redirect()->back()->with([
+                'flash' => [
+                    'error' => 'Insufficient balance. You need KES ' . number_format($packageDetails['amount']) . ' to purchase this package.'
+                ]
+            ]);
         }
-    
+
         try {
             DB::transaction(function () use ($user, $packageType, $packageDetails) {
                 // Deduct amount from user balance
                 $user->decrement('deposit_balance', $packageDetails['amount']);
-    
+
                 $commissionAmount = $packageDetails['amount'] * 0.85; // 85% commission
-    
+
                 // Determine package name based on amount
                 $packageName = '';
                 $cashback = 0;
@@ -109,13 +111,13 @@ class PackageController extends Controller
                         $cashback = 0;
                         $packageName = $packageDetails['name'] ?? 'Unknown Package';
                 }
-    
+
                 // Update user's package and active status
                 $user->update([
                     'package' => $packageName,
                     'is_active' => 1
                 ]);
-    
+
                 // Distribute commission to upline
                 $uplineId = $user->referred_by;
                 $upline = null;
@@ -125,7 +127,7 @@ class PackageController extends Controller
                     if ($upline) {
                         $upline->increment('deposit_balance', $commissionAmount);
                         $upline->increment('total_earned_from_referrals', $commissionAmount);
-    
+
                         // Send bonus email to upline
                         try {
                             Mail::to($upline->email)->send(new UplineBonusEmail(
@@ -140,14 +142,14 @@ class PackageController extends Controller
                         }
                     }
                 }
-    
+
                 // Check if user has active package of same type
                 $existingPackage = Package::where('user_id', $user->id)
                     ->where('package_type', $packageType)
                     ->where('status', 'active')
                     ->where('expires_at', '>', now())
                     ->first();
-    
+
                 if ($existingPackage) {
                     // Extend existing package
                     $existingPackage->update([
@@ -184,19 +186,20 @@ class PackageController extends Controller
                     \Log::error('Failed to send package purchase email: ' . $e->getMessage());
                 }
             });
-    
-            return response()->json([
-                'message' => 'Package purchased successfully! Your ' . $packageDetails['name'] . ' is now active. Check your email for details.',
-                'package_type' => $packageType,
-                'package_name' => $packageDetails['name']
-            ], 200);
-    
+
+            return redirect()->back()->with([
+                'flash' => [
+                    'success' => 'Package purchased successfully! Your ' . $packageDetails['name'] . ' is now active. Check your email for details.'
+                ]
+            ]);
+
         } catch (\Exception $e) {
             \Log::error('Package purchase failed: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Failed to purchase package. Please try again.',
-                'error' => $e->getMessage()
-            ], 500);
+            return redirect()->back()->with([
+                'flash' => [
+                    'error' => 'Failed to purchase package. Please try again.'
+                ]
+            ]);
         }
     }
 
@@ -270,10 +273,11 @@ class PackageController extends Controller
         $packageDetails = Package::getPackageDetails($package->package_type);
 
         if ($user->deposit_balance < $packageDetails['amount']) {
-            return response()->json([
-                'message' => 'Insufficient balance.',
-                'errors' => ['balance' => 'You need KES ' . number_format($packageDetails['amount']) . ' to renew this package.']
-            ], 422);
+            return redirect()->back()->with([
+                'flash' => [
+                    'error' => 'Insufficient balance. You need KES ' . number_format($packageDetails['amount']) . ' to renew this package.'
+                ]
+            ]);
         }
 
         try {
@@ -332,16 +336,19 @@ class PackageController extends Controller
                 }
             });
 
-            return response()->json([
-                'message' => 'Package renewed successfully! Check your email for confirmation.'
-            ], 200);
+            return redirect()->back()->with([
+                'flash' => [
+                    'success' => 'Package renewed successfully! Check your email for confirmation.'
+                ]
+            ]);
 
         } catch (\Exception $e) {
             \Log::error('Package renewal failed: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Failed to renew package. Please try again.',
-                'error' => $e->getMessage()
-            ], 500);
+            return redirect()->back()->with([
+                'flash' => [
+                    'error' => 'Failed to renew package. Please try again.'
+                ]
+            ]);
         }
     }
 
@@ -363,17 +370,19 @@ class PackageController extends Controller
         // Calculate upgrade cost
         $upgradeCost = $newPackageDetails['amount'] - $currentPackageDetails['amount'];
         if ($upgradeCost <= 0) {
-            return response()->json([
-                'message' => 'Cannot downgrade package.',
-                'errors' => ['upgrade' => 'Cannot downgrade package. Please purchase a higher tier.']
-            ], 422);
+            return redirect()->back()->with([
+                'flash' => [
+                    'error' => 'Cannot downgrade package. Please purchase a higher tier.'
+                ]
+            ]);
         }
 
         if ($user->deposit_balance < $upgradeCost) {
-            return response()->json([
-                'message' => 'Insufficient balance.',
-                'errors' => ['balance' => 'You need KES ' . number_format($upgradeCost) . ' to upgrade.']
-            ], 422);
+            return redirect()->back()->with([
+                'flash' => [
+                    'error' => 'Insufficient balance. You need KES ' . number_format($upgradeCost) . ' to upgrade.'
+                ]
+            ]);
         }
 
         try {
@@ -430,16 +439,19 @@ class PackageController extends Controller
                 }
             });
 
-            return response()->json([
-                'message' => 'Package upgraded successfully to ' . $newPackageDetails['name'] . '! Check your email for details.'
-            ], 200);
+            return redirect()->back()->with([
+                'flash' => [
+                    'success' => 'Package upgraded successfully to ' . $newPackageDetails['name'] . '! Check your email for details.'
+                ]
+            ]);
 
         } catch (\Exception $e) {
             \Log::error('Package upgrade failed: ' . $e->getMessage());
-            return response()->json([
-                'message' => 'Failed to upgrade package. Please try again.',
-                'error' => $e->getMessage()
-            ], 500);
+            return redirect()->back()->with([
+                'flash' => [
+                    'error' => 'Failed to upgrade package. Please try again.'
+                ]
+            ]);
         }
     }
 }
