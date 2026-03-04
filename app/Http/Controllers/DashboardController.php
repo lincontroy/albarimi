@@ -11,6 +11,7 @@ use App\Models\CertificationPurchase;
 use App\Models\Endorsement;
 use App\Models\Job;
 use App\Models\BonusClaim;
+use App\Models\Transaction;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -149,6 +150,10 @@ $recentReviews = [
             'stats' => [
                 'job_applications' => $jobApplications,
                 'active_endorsements' => $activeEndorsements,
+                'total_withdrawals' => Transaction::where('user_id', $user->id)
+                ->where('type', 'withdrawal')
+                ->where('status', 'completed')
+                ->sum('amount'),
                 'referrals' => $referralStats,
                 'total_referrals' => $referralStats['total'] ?? 0,
                 'active_referrals' => $referralStats['active'] ?? 0,

@@ -123,7 +123,7 @@
                 <!-- Withdrawal Info -->
                 <div class="bg-gradient-to-br from-indigo-600/40 to-purple-600/40 backdrop-blur-xl border border-indigo-500/30 text-white rounded-2xl p-3 shadow-2xl shadow-indigo-500/20">
                     <h3 class="text-lg font-bold mb-1">Total Withdrawn</h3>
-                    <p class="text-4xl font-bold">KES. {{ balances.total_withdrawn.toLocaleString() }}</p>
+                    <p class="text-4xl font-bold">KES. {{ stats.total_withdrawals.toLocaleString() }}</p>
                     <p class="text-xs text-indigo-300 mt-1">Lifetime withdrawals</p>
                 </div>
 
