@@ -51,6 +51,7 @@ class PackageController extends Controller
             'packages' => $packages,
             'activePackages' => $activePackages,
             'userBalance' => $user->deposit_balance,
+            'userPackage' => $user->package,
         ]);
     }
 
@@ -100,6 +101,8 @@ class PackageController extends Controller
 
                         $amount = $packageDetails['amount'];
 
+                        // dd($amount);
+
                         // $user=Auth::user();
 
                         $package_name="";
@@ -121,9 +124,11 @@ class PackageController extends Controller
                         //   dd($package_name);
                         
 
-                        $user->update([
+                        if($user->update([
                             'package' => $package_name
-                        ]);
+                        ])){
+                          
+                        };
                         $user->update([
                             'is_active' => 1
                         ]);

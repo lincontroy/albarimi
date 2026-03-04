@@ -19,11 +19,7 @@
                                 <h3 class="text-lg font-bold text-white mb-1">Your Balance</h3>
                                 <p class="text-2xl font-bold text-green-400">KES {{ userBalance.toLocaleString() }}</p>
                             </div>
-                            <div class="text-center">
-                                <p class="text-green-300 text-sm mb-1">Active Package</p>
-                                <p v-if="currentActivePackage" class="text-2xl font-bold text-white">{{ currentActivePackage.package_name }}</p>
-                                <p v-else class="text-2xl font-bold text-yellow-400">None</p>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>

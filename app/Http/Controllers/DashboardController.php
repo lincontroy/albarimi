@@ -120,6 +120,7 @@ $recentReviews = [
                 'created_at' => $user->created_at,
                 'is_agent' => $user->is_agent,
                 'agent_since' => $user->agent_since,
+                'package' => $package,
                 'last_active_at' => $user->last_active_at,
                 'deposit_balance' => $user->deposit_balance,
                 'agent_bonus' => $user->agent_bonus,

@@ -100,7 +100,7 @@
                 <!-- Package Info -->
                 <div class="bg-gradient-to-br from-pink-600/40 to-rose-600/40 backdrop-blur-xl border border-pink-500/30 text-white rounded-2xl p-3 shadow-2xl shadow-pink-500/20">
                     <h3 class="text-lg font-bold mb-1">Current Package</h3>
-                    <p class="text-2xl font-bold">{{ package.current }}</p>
+                    <p class="text-2xl font-bold">{{ user.package }}</p>
                     <p class="text-sm text-pink-300 mt-1">Status: {{ package.status }}</p>
                     <p v-if="package.purchased_at" class="text-xs text-pink-400 mt-1">
                         Purchased: {{ formatDate(package.purchased_at) }}
