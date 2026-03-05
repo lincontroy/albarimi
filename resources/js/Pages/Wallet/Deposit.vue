@@ -601,11 +601,9 @@ const submitDeposit = async () => {
                     confirmButtonText: 'OK, I\'ve entered PIN'
                 });
                 
-                if (data.transaction_id) {
-                    await checkTransactionStatus(data.transaction_id);
-                } else {
-                    window.location.href = data.redirect;
-                }
+                
+                    window.location.href = '/wallet/history';
+                
             } else {
                 await Swal.fire({
                     icon: 'success',
