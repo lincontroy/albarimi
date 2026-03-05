@@ -560,11 +560,11 @@ const submitDeposit = async () => {
             throw new Error('CSRF token not found');
         }
 
-        const response = await fetch('/wallet/deposit', {
+        const response = await fetch('/api/wallet/deposit', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': token,
+                // 'X-CSRF-TOKEN': token,
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json'
             },

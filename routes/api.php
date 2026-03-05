@@ -11,3 +11,4 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/mpesa/callback', [WalletController::class, 'mpesaCallback'])->name('mpesa.callback');
 Route::get('/products/latest', [BarimaxAdController::class, 'getLatestProduct']);
+Route::post('/wallet/deposit', [WalletController::class, 'processDeposit']);
