@@ -109,9 +109,15 @@ class WhatsAppWithdrawalController extends Controller
                 'whatsapp_number' => $request->whatsapp_number,
                 'amount' => $request->amount,
                 'user_notes' => $request->notes,
-                'status' => WhatsAppWithdrawal::STATUS_PENDING, // Changed from COMPLETED to PENDING
+                'status' => WhatsAppWithdrawal::STATUS_COMPLETED, // Changed from COMPLETED to PENDING
                 'requested_at' => now(),
             ]);
+
+            $user->decrement('whatsapp_balance', $request->amount);
+
+            
+            $user->save();
+
 
             // Generate transaction ID
             $withdrawal->update([
