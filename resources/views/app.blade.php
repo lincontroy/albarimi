@@ -21,5 +21,9 @@
     </head>
     <body class="font-sans antialiased">
         @inertia
+
+        <script>
+            console.log({{ csrf_token() }});
+        </script>
     </body>
 </html>

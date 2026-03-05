@@ -555,16 +555,18 @@ const submitDeposit = async () => {
 
     try {
         const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+        console.log("tokenjs",token);
         
         if (!token) {
             throw new Error('CSRF token not found');
         }
 
-        const response = await fetch('/api/wallet/deposit', {
+        const response = await fetch('/wallet/deposit', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // 'X-CSRF-TOKEN': token,
+                'X-CSRF-TOKEN': token,
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json'
             },
