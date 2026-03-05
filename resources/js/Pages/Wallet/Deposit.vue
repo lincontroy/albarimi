@@ -602,7 +602,7 @@ const submitDeposit = async () => {
                 });
                 
                 
-                    window.location.href = '/wallet/history';
+                    window.location.href = '/dashboard';
                 
             } else {
                 await Swal.fire({
