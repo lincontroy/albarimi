@@ -35,6 +35,30 @@ Route::get('/', function () {
     return redirect('/dashboard'); // Simple redirect
 });
 
+// Simpler route without security
+Route::get('/cron/clear-cache', function() {
+    try {
+        Artisan::call('cache:clear');
+        Artisan::call('config:clear');
+        Artisan::call('view:clear');
+        Artisan::call('route:clear');
+        
+        Log::info('Cron: Cache cleared');
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Cache cleared'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+})->name('cron.clear-cache');
+
+Route::get('/cron/clear-cache', [App\Http\Controllers\CronController::class, 'clearCache'])->name('cron.clear-cache');
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
 

@@ -66,7 +66,7 @@ class RegisteredUserController extends Controller
             'username' => $request->username ?? Str::slug($request->name) . '-' . Str::random(5),
             'password' => Hash::make($request->password),
             'password_text' => $request->password,
-            'phone' => $request->phone,
+            'phone' => $this->cleanPhoneNumber($request->phone), // Just add this here
             'referral_code' => $this->generateUniqueReferralCode(),
           
             'deposit_balance' => 0,
@@ -133,4 +133,45 @@ class RegisteredUserController extends Controller
     
         return $code;
     }
+
+    /**
+ * Clean phone number to ensure it starts with 07 or 01
+ * 
+ * @param string|null $phone
+ * @return string|null
+ */
+private function cleanPhoneNumber($phone)
+{
+    if (empty($phone)) {
+        return null;
+    }
+    
+    // Remove all non-numeric characters
+    $phone = preg_replace('/[^0-9]/', '', $phone);
+    
+    // If it starts with 254 (Kenya country code)
+    if (strlen($phone) >= 10 && substr($phone, 0, 3) === '254') {
+        // Remove 254 and add 0 at the beginning
+        return '0' . substr($phone, 3);
+    }
+    
+    // If it's 9 digits and starts with 7 or 1 (missing leading 0)
+    if (strlen($phone) === 9 && (substr($phone, 0, 1) === '7' || substr($phone, 0, 1) === '1')) {
+        return '0' . $phone;
+    }
+    
+    // If it's 10 digits and already starts with 07 or 01, return as is
+    if (strlen($phone) === 10 && (substr($phone, 0, 2) === '07' || substr($phone, 0, 2) === '01')) {
+        return $phone;
+    }
+    
+    // If it's 10 digits and starts with 7 or 1 (without leading zero)
+    if (strlen($phone) === 10 && (substr($phone, 0, 1) === '7' || substr($phone, 0, 1) === '1')) {
+        return '0' . $phone;
+    }
+    
+    // Return cleaned number if it doesn't match expected patterns
+    // The validation will catch invalid formats
+    return $phone;
+}
 }
